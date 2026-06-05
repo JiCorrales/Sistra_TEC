@@ -1,0 +1,13 @@
+export const teal      = "#1a9e96";
+export const tealDark  = "#157a73";
+export const tealLight = "#e8f7f6";
+export const navy      = "#1a2a5e";
+export const white     = "#ffffff";
+export const gray50    = "#f9fafb";
+export const gray100   = "#f1f5f9";
+export const gray200   = "#e2e8f0";
+export const gray400   = "#94a3b8";
+export const gray600   = "#475569";
+export const gray800   = "#1e293b";
+export const red       = "#ef4444";
+export const green     = "#22c55e";

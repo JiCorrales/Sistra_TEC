@@ -144,13 +144,19 @@ export const Card = ({ title, value }) => (
   </div>
 );
 
-// ─── NAVBAR ───────────────────────────────────────────────────────────────────
+// ─── NAVBAR (CORREGIDO) ───────────────────────────────────────────────────────
 export const Navbar = ({ tabs, activeTab, setActiveTab, onLogout }) => (
   <nav style={{
+    position: "fixed",    // 1. Cambiado de sticky a fixed para flotar real
+    top: 0,               // 2. Alínea al borde superior absoluto
+    left: 0,              // 3. Alínea al borde izquierdo absoluto
+    width: "100vw",       // 4. Fuerza a llenar el 100% del ancho de pantalla visible
+    boxSizing: "border-box", // Evita desbordamientos por paddings internos
+    zIndex: 1000,         // 5. Asegura que pase por encima de tablas y tarjetas
     background: tealDark,
     display: "flex",
     alignItems: "stretch",
-    height: 64,
+    height: 70,           // Tu altura configurada
     boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
   }}>
     <div style={{ display: "flex", alignItems: "center", paddingLeft: 24, paddingRight: 20, minWidth: 180 }}>
@@ -195,6 +201,20 @@ export const Navbar = ({ tabs, activeTab, setActiveTab, onLogout }) => (
   </nav>
 );
 
+// ─── PAGE WRAPPER (CORREGIDO) ─────────────────────────────────────────────────
+export const PageWrapper = ({ children }) => (
+  <div style={{ 
+    minHeight: "100vh", 
+    background: gray50, 
+    display: "flex", 
+    flexDirection: "column",
+    paddingTop: 70,        // <--- IMPORTANTE: Empuja el contenido hacia abajo para que el Navbar no tape nada
+    boxSizing: "border-box" 
+  }}>
+    {children}
+  </div>
+);
+
 // ─── FOOTER ───────────────────────────────────────────────────────────────────
 export const Footer = () => (
   <div style={{ display: "flex", justifyContent: "flex-end", padding: "20px 32px 24px", borderTop: `1px solid ${gray200}` }}>
@@ -202,12 +222,7 @@ export const Footer = () => (
   </div>
 );
 
-// ─── PAGE WRAPPER ─────────────────────────────────────────────────────────────
-export const PageWrapper = ({ children }) => (
-  <div style={{ minHeight: "100vh", background: gray50, display: "flex", flexDirection: "column" }}>
-    {children}
-  </div>
-);
+
 
 // ─── SECTION HEADER ───────────────────────────────────────────────────────────
 export const SectionHeader = ({ title }) => (

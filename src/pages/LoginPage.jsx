@@ -22,8 +22,19 @@ export default function LoginPage({ onLogin, onRegister, onForgot }) {
   };
 
   return (
+    <>
+    <style>{`
+        html, body {
+          margin: 0 !important;
+          padding: 0 !important;
+          width: 100% !important;
+          height: 100% !important;
+          overflow-x: hidden;
+        }
+      `}</style>
     <div style={{
-      minHeight: "100vh",
+      width: "100vw",
+      height: "100vh",
       background: `linear-gradient(135deg, ${teal} 0%, ${tealDark} 100%)`,
       display: "flex",
       alignItems: "center",
@@ -106,5 +117,6 @@ export default function LoginPage({ onLogin, onRegister, onForgot }) {
         </div>
       </div>
     </div>
+    </>
   );
 }

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Logo, Input, Btn } from "../components/UI";
 import { teal, tealDark, navy, white, gray50, gray200, gray600, gray800, red } from "../tokens";
+import { supabase } from '../supabaseClient'
 
 /**
  * LoginPage
@@ -13,12 +14,58 @@ export default function LoginPage({ onLogin, onRegister, onForgot }) {
   const [user, setUser] = useState("");
   const [pass, setPass] = useState("");
   const [error, setError] = useState(false);
+  const [msjError, setMsjError] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-  const handleLogin = () => {
-    if (user === "admin"          && pass === "admin") { onLogin("admin");          return; }
-    if (user === "donador"        && pass === "1234")  { onLogin("donador");        return; }
-    if (user === "transportista"  && pass === "1234")  { onLogin("transportista");  return; }
+  const handleLogin = async () => {
+    // 1. Intentar autenticación 
+    const { data: authData, error: authError } = 
+        await supabase.auth.signInWithPassword({ email, password }) 
+    //Ver errores
+    if(!email){
+      setMsjError('Por favor ingrese su correo electrónico');
+      setError(true);
+      return
+    }
+    if(!password){
+      setMsjError('Por favor ingrese su contraseña');
+      setError(true);
+      return
+    }
+  if (authError) { 
+    // Email no confirmado 
+    if ( authError.message.includes('Email not confirmed') ) 
+      {
+        setError(true);
+        setMsjError('Debes confirmar tu correo electrónico');
+       return 
+      } 
+    // Correo o contraseña incorrectos
+    if ( authError.message.includes('Invalid login credentials') ) 
+        {
+          setError(true);
+          setMsjError('Correo o contraseña incorrectos');
+           return 
+        } 
+    // Otro error 
     setError(true);
+    setMsjError('Ocurrió un error al intentar iniciar sesión' + authError.message);
+    return { success: false, message: authError.message } 
+  } 
+  //Obtener usuario autenticado
+  const user = authData.user 
+  //Buscar perfil
+  const { data: profile, error: profileError } = 
+    await supabase .from('profiles') .select('role, id') .eq('id', user.id) .single() 
+  if (profileError) { return { success: false, message: 'No se pudo cargar el perfil' } } 
+  // 5. Retornar datos combinados
+  setError(false);
+  setMsjError('');
+  onLogin(profile.role); 
+  return { success: true, 
+    session: authData.session, 
+    user: { id: user.id, role: profile.role } }
   };
 
   return (
@@ -55,17 +102,19 @@ export default function LoginPage({ onLogin, onRegister, onForgot }) {
 
         <div style={{ display: "flex", flexDirection: "column", gap: 14, textAlign: "left" }}>
           <Input
-            label="Nombre de usuario:"
-            placeholder="Por favor introduzca su nombre de usuario."
-            value={user}
-            onChange={e => { setUser(e.target.value); setError(false); }}
+            label="Correo electrónico:"
+            placeholder="Por favor introduzca su correo electrónico."
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            
+            
           />
           <Input
             label="Contraseña:"
             placeholder="Por favor introduzca su contraseña."
             type="password"
-            value={pass}
-            onChange={e => { setPass(e.target.value); setError(false); }}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
           />
 
           {error && (
@@ -77,7 +126,7 @@ export default function LoginPage({ onLogin, onRegister, onForgot }) {
               fontSize: 13,
               color: red,
             }}>
-              ⚠ Usuario o contraseña incorrectos. Intente de nuevo.
+              ⚠ {msjError}
             </div>
           )}
 
@@ -86,7 +135,7 @@ export default function LoginPage({ onLogin, onRegister, onForgot }) {
               onClick={onForgot}
               style={{ background: "none", border: "none", color: teal, fontSize: 13, cursor: "pointer", textAlign: "left", fontStyle: "italic", padding: 0 }}
             >
-              Si olvidó su contraseña, presione aquí!
+              Si olvidó su contraseña, presione aquí
             </button>
             <button
               onClick={onRegister}
@@ -97,7 +146,7 @@ export default function LoginPage({ onLogin, onRegister, onForgot }) {
           </div>
 
           <Btn onClick={handleLogin} style={{ marginTop: 8, width: "100%" }}>
-            Login
+            Iniciar Sesión
           </Btn>
         </div>
 
@@ -119,4 +168,47 @@ export default function LoginPage({ onLogin, onRegister, onForgot }) {
     </div>
     </>
   );
+
+
+
+
+
+async function registrarse(
+  email,
+  password,
+  username
+) {
+
+  // 1. Crear usuario Auth
+  const { data, error } =
+    await supabase.auth.signUp({
+      email,
+      password
+    })
+
+  if(error) {
+    console.log(error.message)
+    return
+  }
+
+  // 2. Crear profile enlazado
+  const { error: profileError } =
+    await supabase
+      .from('profiles')
+      .insert({
+        id: data.user.id,
+        username: username,
+        role: 'usuario'
+      })
+
+  if(profileError) {
+    console.log(profileError.message)
+    return
+  }
+
+  console.log('Usuario creado')
+}
+
+
+  
 }

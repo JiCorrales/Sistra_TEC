@@ -1,24 +1,25 @@
-import { useState } from "react";
-import LoginPage              from "./pages/LoginPage";
-import ForgotPasswordPage     from "./pages/ForgotPasswordPage";
-import RegisterPage           from "./pages/RegisterPage";
-import AdminDashboardPage     from "./pages/AdminDashboardPage";
-import DonadorDashboardPage   from "./pages/DonadorDashboardPage";
+import { useState, useEffect } from "react";
+import LoginPage               from "./pages/LoginPage";
+import ForgotPasswordPage      from "./pages/ForgotPasswordPage";
+import RegisterPage            from "./pages/RegisterPage";
+import AdminDashboardPage      from "./pages/AdminDashboardPage";
+import DonadorDashboardPage    from "./pages/DonadorDashboardPage";
 import TransportistaDashboardPage from "./pages/TransportistaDashboardPage";
 
 /**
- * App — root router for SISTRA-TEC
- *
- * Screens:
- *   "login"          → LoginPage
- *   "forgot"         → ForgotPasswordPage
- *   "register"       → RegisterPage
- *   "app/admin"      → AdminDashboardPage
- *   "app/donador"    → DonadorDashboardPage
- *   "app/transport"  → TransportistaDashboardPage
+ * App — root router for SISTRA-TEC (Modo Desarrollo Local)
  */
 export default function App() {
-  const [screen, setScreen] = useState("login");
+  // 1. Cargamos de forma síncrona la pantalla guardada. 
+  // Si no hay nada, la pestaña inicial por defecto SIEMPRE será "login" al abrir el navegador de cero.
+  const [screen, setScreen] = useState(() => {
+    return localStorage.getItem("sistratec_screen") || "login";
+  });
+
+  // 2. Guardamos en el disco la pantalla cada vez que cambie legítimamente
+  useEffect(() => {
+    localStorage.setItem("sistratec_screen", screen);
+  }, [screen]);
 
   const handleLogin = (role) => {
     const map = {
@@ -29,8 +30,13 @@ export default function App() {
     setScreen(map[role] || "login");
   };
 
-  const handleLogout = () => setScreen("login");
+  const handleLogout = () => {
+    // Al salir, borramos la persistencia para que la app no se quede "atascada" en ese rol
+    localStorage.removeItem("sistratec_screen");
+    setScreen("login");
+  };
 
+  // Enrutador directo por Switch
   switch (screen) {
     case "forgot":
       return <ForgotPasswordPage onBack={() => setScreen("login")} />;

@@ -1,25 +1,117 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
-  PageWrapper, Footer, SectionHeader,
+  PageWrapper, Footer,
   Input, Select, Btn, BackBtn, SuccessCard,
 } from "../components/UI";
-import { mockBeneficiarios } from "../data/mockData";
 import { teal, tealLight, gray50, gray200, gray400, gray600 } from "../tokens";
+import { supabase } from "../supabaseClient";
+import { addDonation } from "../services/AddDonation"; // Ruta hacia tu archivo de servicio
 
 /**
  * RegisterDonationPage
  * Props:
- *   onBack() — go back without saving
- *   onDone() — called after successful registration
+ * onBack() — go back without saving
+ * onDone() — called after successful registration
  */
 export default function RegisterDonationPage({ onBack, onDone }) {
-  const [done, setDone]       = useState(false);
+  const [done, setDone] = useState(false);
   const [dragging, setDragging] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // ─── ESTADOS DEL FORMULARIO ───
+  const [donationType, setDonationType] = useState("");
+  const [description, setDescription] = useState("");
+  const [beneficiaryId, setBeneficiaryId] = useState("");
+  const [imageFile, setImageFile] = useState(null);
+
+  // Estado para la lista real de la base de datos
+  const [beneficiariesList, setBeneficiariesList] = useState([]);
+
+  // ─── CARGAR BENEFICIARIOS REALES DESDE SUPABASE ───
+  useEffect(() => {
+    supabase
+      .from("beneficiaries")
+      .select("id, name")
+      .order("name", { ascending: true })
+      .then(({ data, error }) => {
+        if (!error && data) {
+          setBeneficiariesList(data);
+        }
+      });
+  }, []);
+
+  // Manejador para cuando seleccionan una imagen por el explorador de archivos
+  const handleFileChange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      setImageFile(e.target.files[0]);
+    }
+  };
+
+  // Manejador para el soltado (Drop) de archivos en la zona interactiva
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setDragging(false);
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      setImageFile(e.dataTransfer.files[0]);
+    }
+  };
+
+  // ─── LOGICA DE ENVÍO E INTEGRACIÓN DE TU RPC ───
+  const handleSubmit = async () => {
+    if (!donationType || !beneficiaryId) {
+      alert("Por favor rellena los campos obligatorios (*)");
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      let publicImageUrl = null;
+
+      // ─── SUBIDA AL BUCKET (OPCIONAL) ───
+      if (imageFile) {
+        const fileExt = imageFile.name.split('.').pop();
+        const fileName = `${Date.now()}.${fileExt}`;
+        const filePath = `donaciones/${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from("donation_images") // Asegúrate de que el bucket se llame así en Supabase Storage
+          .upload(filePath, imageFile, { cacheControl: "3600", upsert: true });
+
+        if (uploadError) throw uploadError;
+
+        const { data: urlData } = supabase.storage
+          .from("evidencias")
+          .getPublicUrl(filePath);
+
+        publicImageUrl = urlData.publicUrl;
+      }
+
+      // ─── MANDAR LOS DATOS A TU ARCHIVO ADDDONATION.JS ───
+      const donationData = {
+        donationType,
+        description,
+        beneficiaryId // Enviará el ID numérico correcto para la FK
+      };
+
+      const trackingId = await addDonation(donationData, publicImageUrl);
+
+      if (trackingId) {
+        setDone(true); // Despliega la tarjeta de SuccessCard
+      } else {
+        alert("La base de datos rechazó la inserción. Revisa los logs.");
+      }
+    } catch (err) {
+      console.error("Error en el flujo del formulario:", err);
+      alert("Ocurrió un inconveniente al procesar el envío.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   if (done) {
     return (
       <SuccessCard
-        emoji="🎉"
         title="¡Donación registrada!"
         message="Tu donación fue registrada exitosamente. Puedes darle seguimiento en tiempo real."
         btnLabel="Ver mis donaciones"
@@ -52,20 +144,33 @@ export default function RegisterDonationPage({ onBack, onDone }) {
               {/* Left column */}
               <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
                 <Input
-                  placeholder="Nombre del donante (Obtenido desde el perfil, no se puede modificar)"
+                  placeholder="Nombre del donante"
                   value="Carlos Mora"
                   disabled
                 />
+                
                 <Select
-                  placeholder="Tipo de donación"
+                  placeholder="Tipo de donación *"
                   options={["Alimentos", "Ropa", "Medicamentos", "Electrónica"]}
+                  value={donationType}
+                  onChange={(e) => setDonationType(e.target.value)}
                 />
+
                 <Input
-                  placeholder="Descripción  (Describe con la mayor exactitud tu contribución)"
+                  placeholder="Descripción (Describe con la mayor exactitud tu contribución)"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
                 />
+
+                {/* Select dinámico de Beneficiarios mapeando la BD real */}
                 <Select
-                  placeholder="Beneficiario"
-                  options={mockBeneficiarios.map(b => b.nombre)}
+                  placeholder="Beneficiario *"
+                  options={beneficiariesList.map(b => b.name)}
+                  value={beneficiariesList.find(b => b.id === Number(beneficiaryId))?.name || ""}
+                  onChange={(e) => {
+                    const selected = beneficiariesList.find(b => b.name === e.target.value);
+                    setBeneficiaryId(selected ? selected.id : "");
+                  }}
                 />
               </div>
 
@@ -77,31 +182,52 @@ export default function RegisterDonationPage({ onBack, onDone }) {
                 <div
                   onDragOver={e => { e.preventDefault(); setDragging(true); }}
                   onDragLeave={() => setDragging(false)}
-                  onDrop={e => { e.preventDefault(); setDragging(false); }}
+                  onDrop={handleDrop}
+                  onClick={() => document.getElementById("file-upload-input").click()}
                   style={{
                     border: `2px dashed ${dragging ? teal : gray200}`,
                     borderRadius: 8,
                     height: 180,
                     display: "flex",
+                    flexDirection: "column",
                     alignItems: "center",
                     justifyContent: "center",
                     background: dragging ? tealLight : gray50,
                     cursor: "pointer",
                     transition: "all 0.2s",
-                    color: gray400,
+          
                     fontSize: 14,
+                    textAlign: "center",
+                    padding: 16,
+                    position: "relative"
                   }}
                 >
-                  + Arrastre o seleccione archivo
+                  {imageFile ? (
+                    <div>
+                      <span style={{ fontSize: 24, display: "block" }}>📸</span>
+                      <span style={{ fontWeight: 500 }}>{imageFile.name}</span>
+                    </div>
+                  ) : (
+                    "+ Arrastre o seleccione archivo"
+                  )}
+                  
+                  {/* Input HTML oculto encargado de disparar la carga por click */}
+                  <input 
+                    id="file-upload-input"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    style={{ display: "none" }}
+                  />
                 </div>
               </div>
             </div>
 
             {/* Actions */}
             <div style={{ display: "flex", gap: 12, marginTop: 28, alignItems: "center" }}>
-              <BackBtn onClick={onBack} />
-              <Btn onClick={() => setDone(true)} style={{ flex: 1 }}>
-                Registrar
+              <BackBtn onClick={onBack} disabled={isSubmitting} />
+              <Btn onClick={handleSubmit} style={{ flex: 1 }} disabled={isSubmitting}>
+                {isSubmitting ? "Registrando en el sistema..." : "Registrar"}
               </Btn>
             </div>
           </div>

@@ -59,25 +59,34 @@ export const Input = ({ label, placeholder, type = "text", value, onChange, disa
   </div>
 );
 
-// ─── SELECT ───────────────────────────────────────────────────────────────────
-export const Select = ({ label, placeholder, options = [] }) => (
+
+// ─── SELECT CORREGIDO ──────────────────────────────────────────────────────────
+export const Select = ({ label, placeholder, options = [], value, onChange }) => (
   <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
     {label && <label style={{ fontSize: 13, color: gray600, fontWeight: 500 }}>{label}</label>}
     <div style={{ position: "relative" }}>
-      <select style={{
-        width: "100%",
-        padding: "10px 36px 10px 14px",
-        border: `1.5px solid ${gray200}`,
-        borderRadius: 6,
-        fontSize: 14,
-        color: placeholder ? gray400 : gray800,
-        background: white,
-        outline: "none",
-        appearance: "none",
-        cursor: "pointer",
-      }}>
+      <select 
+        value={value}       // <─── Vincula el estado actual de React
+        onChange={onChange} // <─── Escucha cuando el usuario cambia de opción
+        style={{
+          width: "100%",
+          padding: "10px 36px 10px 14px",
+          border: `1.5px solid ${gray200}`,
+          borderRadius: 6,
+          fontSize: 14,
+          // Cambia el color dinámicamente si no hay nada seleccionado (placeholder activo)
+          color: value ? gray800 : gray400, 
+          background: white,
+          outline: "none",
+          appearance: "none",
+          cursor: "pointer",
+        }}
+      >
         {placeholder && <option value="">{placeholder}</option>}
-        {options.map(o => <option key={o}>{o}</option>)}
+        {options.map(o => (
+          // Usamos 'value={o}' explícitamente para asegurar la consistencia del string
+          <option key={o} value={o}>{o}</option> 
+        ))}
       </select>
       <span style={{
         position: "absolute", right: 12, top: "50%",

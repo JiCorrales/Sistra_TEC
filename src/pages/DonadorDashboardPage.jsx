@@ -8,9 +8,10 @@ import { DetailModal } from "../components/DetailModal";
 import RegisterDonationPage from "./RegisterDonationPage";
 import { getDashboardDonator } from "../services/DonadorDashboardPage";
 
-export default function DonadorDashboardPage({ onLogout }) {
+export default function DonadorDashboardPage({ onLogout, setScreen }) {
   const [activeTab, setActiveTab] = useState("Mis donaciones");
   const [showRegister, setShowRegister] = useState(false);
+  const [showEditUser, setShowEditUser] = useState(false);
 
   // Datos crudos de la Base de Datos
   const [rows, setRows] = useState([]);
@@ -24,6 +25,11 @@ export default function DonadorDashboardPage({ onLogout }) {
   // Estados para el Pop-up de detalles
   const [selectedDonation, setSelectedDonation] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+
+  const handleEditUser = () => {
+  setScreen("edit-userdonador");
+};
 
   // ─── 1. FUNCIÓN DE CARGA REUTILIZABLE ───
   const loadDonations = () => {
@@ -55,6 +61,8 @@ export default function DonadorDashboardPage({ onLogout }) {
     setSelectedDonation(donacion);
     setIsModalOpen(true);
   };
+
+ 
 
   const handleTabChange = (tab) => {
     if (tab === "Registrar donación") { 
@@ -95,11 +103,17 @@ export default function DonadorDashboardPage({ onLogout }) {
   return (
     <PageWrapper>
       <Navbar
-        tabs={["Mis donaciones", "Registrar donación"]}
-        activeTab={activeTab}
-        setActiveTab={handleTabChange}
-        onLogout={onLogout}
-      />
+  tabs={["Mis donaciones", "Registrar donación"]}
+  activeTab={activeTab}
+  setActiveTab={handleTabChange}
+  onLogout={onLogout}  
+/>
+<div style={{ display: "flex", justifyContent: "flex-end", padding: "10px 32px" }}>
+  <Btn onClick={() => setScreen("edit-userdonador")}>
+    Editar usuario
+  </Btn>
+</div>
+
 
       <div style={{ flex: 1, display: "flex", gap: 24, padding: "28px 32px" }}>
         
@@ -133,7 +147,7 @@ export default function DonadorDashboardPage({ onLogout }) {
             />
           )}
         </div>
-
+          
         {/* Panel Lateral de Filtros (Lado Derecho) */}
         <div style={{ width: 300 }}>
           <div style={{
@@ -185,4 +199,5 @@ export default function DonadorDashboardPage({ onLogout }) {
       <Footer />
     </PageWrapper>
   );
+  
 }

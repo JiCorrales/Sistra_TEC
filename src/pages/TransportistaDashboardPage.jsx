@@ -10,7 +10,12 @@ import { getTransportistaDashboard } from "../services/TransportistaDashboard";
 // Reemplazá este ID por el del usuario logueado cuando se integre AuthContext
 const TRANSPORTISTA_ID = "uuid-del-transportista-logueado";
 
-export default function TransportistaDashboardPage({ onLogout }) {
+/**
+ * TransportistaDashboardPage
+ * Props:
+ *   onLogout() — navigate back to login
+ */
+export default function TransportistaDashboardPage({ onLogout, setScreen }) {
   const [delivering, setDelivering] = useState(null);
   const [donations, setDonations] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -90,6 +95,9 @@ export default function TransportistaDashboardPage({ onLogout }) {
       </div>
 
       <Footer />
+      <Btn onClick={() => setScreen("edit-userdonador")}>
+    Editar usuario
+  </Btn>
     </PageWrapper>
   );
 }

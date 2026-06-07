@@ -7,7 +7,7 @@ import { supabase } from '../supabaseClient'
  * Props:
  *   onBack() — navigate back to login
  */
-export default function RegisterPage({ onBack }) {
+export default function EditUserPage({ onBack }) {
 
   const [submitted, setSubmitted] = useState(false);
   const [nombre, setNombre] = useState("");
@@ -16,6 +16,7 @@ export default function RegisterPage({ onBack }) {
   const [telefono, setTelefono] = useState("");
   const [contraseña, setContraseña] = useState("");
   const [confirmarContraseña, setConfirmarContraseña] = useState("");
+  
   const validarCampos = () => {
     if (!nombre) {
       setSubmitted(false);
@@ -91,50 +92,48 @@ export default function RegisterPage({ onBack }) {
       return
     }
 
-    //Crear usuario Auth
-    const { data, error } =
-    await supabase.auth.signUp({
-      email: correo,
-      password: contraseña,
+    const { data: { session } } = await supabase.auth.getSession();
+    const userId = session?.user?.id;
+    
+    const { error } = await supabase
+    .from("profiles")
+    .update({
+      username: correo,
+      first_name: nombre,
+      last_name: apellido,
+      phone: telefono
     })
+    .eq("id", userId);
 
-  if(error) {
-    alert("Error al crear el usuario: " + error.message);
-    return
+  if (error) {
+    alert("Error al actualizar" + error.message);
+    return;
   }
 
-  //Crear profile enlazado
-  const { error: profileError } =
-    await supabase
-      .from('profiles')
-      .insert({
-        id: data.user.id,
-        username: correo,
-        role: "donor",
-        first_name: nombre,
-        last_name: apellido,
-        phone: telefono
-      })
 
-  if(profileError) {
-    alert("Error al crear el profile: " + profileError.message);
-    return
+
+  const { error2 } = await supabase.auth.updateUser({
+    password: contraseña,
+    email: correo
+  });
+
+  if (error2) {
+    alert("Error con contraseña: " +error2.message);
+    return;
   }
 
-  console.log('Usuario creado')
 
-
-
+   
     setSubmitted(true);
-  }
+  } 
     
   if (submitted) {
     return (
       <SuccessCard
         emoji="✅"
-        title="¡Registro exitoso!"
-        message="Tu cuenta ha sido creada correctamente."
-        btnLabel="Ir al inicio de sesión"
+        title="Usuario editado exitoso!"
+        message="Tu cuenta ha sido actualizada correctamente."
+        btnLabel="Volver"
         onAction={onBack}
       />
     );
@@ -159,7 +158,7 @@ export default function RegisterPage({ onBack }) {
           <Logo />
         </div>
         <h1 style={{ fontSize: 24, fontWeight: 700, color: "#1e293b", margin: "14px 0 24px", textAlign: "center" }}>
-          Registrar usuario
+          Editar usuario
         </h1>
 
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>         
@@ -206,7 +205,7 @@ export default function RegisterPage({ onBack }) {
         <div style={{ display: "flex", gap: 12, marginTop: 28, alignItems: "center" }}>
           <BackBtn onClick={onBack} />
           <Btn onClick={() => handleSubmit()} style={{ flex: 1 }}>
-            Registrar
+            Editar
           </Btn>
         </div>
       </div>

@@ -27,6 +27,10 @@ export default function LoginPage({ onLogin, onRegister, onForgot }) {
       setMsjError('Por favor ingrese su correo electrónico');
       setError(true);
       return
+    }if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$$/.test(email)){
+      setMsjError('Por favor ingrese un correo electrónico válido');
+      setError(true);
+      return
     }
     if(!password){
       setMsjError('Por favor ingrese su contraseña');

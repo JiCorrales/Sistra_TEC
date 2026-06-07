@@ -1,5 +1,7 @@
 import { Logo, Input, Btn } from "../components/UI";
 import { teal, tealDark, white, gray600 } from "../tokens";
+import { supabase } from '../supabaseClient'
+import { useState } from "react";
 
 /**
  * ForgotPasswordPage
@@ -7,6 +9,26 @@ import { teal, tealDark, white, gray600 } from "../tokens";
  *   onBack() — navigate back to login
  */
 export default function ForgotPasswordPage({ onBack }) {
+  
+  const [email, setEmail] = useState("");
+
+  const handleForgotPassword = async () => {  
+  if (!email) {
+    alert("Por favor ingrese su correo electrónico");
+    return;
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    alert("Por favor ingrese un correo electrónico válido");
+    return;
+  }
+  const { error } = await supabase.auth.resetPasswordForEmail(email);
+  if (error ) {
+    console.log(error.message);
+    alert("Ocurrió un error al enviar el correo: " + error.message);
+    return;
+  }
+  alert("Te enviamos un correo para cambiar tu contraseña");
+};
   return (
     <div style={{
       minHeight: "100vh",
@@ -33,11 +55,11 @@ export default function ForgotPasswordPage({ onBack }) {
         </p>
 
         <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-          <Input
+          <Input value={email} onChange={(e) => setEmail(e.target.value)}
             label="Correo electrónico:"
             placeholder="Por favor introduzca su correo."
           />
-          <Btn style={{ width: "100%", marginTop: 8 }}>
+          <Btn onClick={handleForgotPassword} style={{ width: "100%", marginTop: 8 }} >
             Enviar enlace
           </Btn>
           <button

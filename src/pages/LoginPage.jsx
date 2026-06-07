@@ -11,8 +11,7 @@ import { supabase } from '../supabaseClient'
  *   onForgot()     — navigate to forgot password
  */
 export default function LoginPage({ onLogin, onRegister, onForgot }) {
-  const [user, setUser] = useState("");
-  const [pass, setPass] = useState("");
+  const [user, setUser] = useState(null);
   const [error, setError] = useState(false);
   const [msjError, setMsjError] = useState("");
   const [email, setEmail] = useState("");
@@ -61,11 +60,16 @@ export default function LoginPage({ onLogin, onRegister, onForgot }) {
   const user = authData.user 
   //Buscar perfil
   const { data: profile, error: profileError } = 
-    await supabase .from('profiles') .select('role, id') .eq('id', user.id) .single() 
-  if (profileError) { return { success: false, message: 'No se pudo cargar el perfil' } } 
+    await supabase .from('profiles') .select('role, id') .eq('id', user.id) .maybeSingle() 
+  if (profileError) {
+    setError(true);
+    setMsjError('Ocurrió un error al cargar el perfil: ' + profileError.message);
+     return { success: false, message: 'No se pudo cargar el perfil' } 
+  } 
   // 5. Retornar datos combinados
   setError(false);
   setMsjError('');
+  console.log('Perfil cargado:', profile);
   onLogin(profile.role); 
   return { success: true, 
     session: authData.session, 

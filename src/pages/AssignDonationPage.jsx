@@ -3,7 +3,7 @@ import {
   PageWrapper, Footer, SectionHeader,
   Input, Select, Btn, BackBtn, SuccessCard,
 } from "../components/UI";
-import { teal, tealLight, tealDark } from "../tokens";
+import { tealLight, tealDark } from "../tokens";
 
 /**
  * AssignDonationPage

@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { Btn, Badge } from "./UI"; 
+import { Btn, Badge } from "./UI";
 import { white, gray200, gray400, gray600, gray800, navy, teal, tealLight } from "../tokens";
 
 export const DetailModal = ({ isOpen, onClose, donation }) => {

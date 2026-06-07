@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Logo, Input, Btn, BackBtn, SuccessCard } from "../components/UI";
-import { teal, tealDark, white, gray200 } from "../tokens";
+import { teal, tealDark, white } from "../tokens";
 import { supabase } from '../supabaseClient'
 /**
  * RegisterPage

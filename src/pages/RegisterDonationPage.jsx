@@ -3,7 +3,7 @@ import {
   PageWrapper, Footer,
   Input, Select, Btn, BackBtn, SuccessCard,
 } from "../components/UI";
-import { teal, tealLight, gray50, gray200, gray400, gray600 } from "../tokens";
+import { teal, tealLight, gray50, gray200, gray600 } from "../tokens";
 import { supabase } from "../supabaseClient";
 import { addDonation } from "../services/AddDonation"; // Ruta hacia tu archivo de servicio
 

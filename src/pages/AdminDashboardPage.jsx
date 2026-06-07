@@ -17,9 +17,10 @@ const TIPOS = ["Alimentos", "Ropa", "Medicamentos", "Electrónica"];
 /**
  * AdminDashboardPage
  * Props:
- *   onLogout() — navigate back to login
+ *   onLogout()  — navigate back to login
+ *   setScreen() — cambiar de pantalla (ej. editar usuario)
  */
-export default function AdminDashboardPage({ onLogout }) {
+export default function AdminDashboardPage({ onLogout, setScreen }) {
   const [activeTab, setActiveTab] = useState("Todas las donaciones");
   const [assigningDonation, setAssigningDonation] = useState(null);
 
@@ -42,6 +43,9 @@ export default function AdminDashboardPage({ onLogout }) {
         setActiveTab={setActiveTab}
         onLogout={onLogout}
       />
+      <div style={{ display: "flex", justifyContent: "flex-end", padding: "10px 32px" }}>
+        <Btn onClick={() => setScreen("edit-useradmin")}>Editar usuario</Btn>
+      </div>
       <div style={{ flex: 1 }}>
         {renderTab()}
       </div>

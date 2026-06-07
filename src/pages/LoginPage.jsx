@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Logo, Input, Btn } from "../components/UI";
-import { teal, tealDark, navy, white, gray50, gray200, gray600, gray800, red } from "../tokens";
+import { teal, tealDark, white, gray50, gray200, gray600, gray800, red } from "../tokens";
 import { supabase } from '../supabaseClient'
 
 /**
@@ -11,7 +11,6 @@ import { supabase } from '../supabaseClient'
  *   onForgot()     — navigate to forgot password
  */
 export default function LoginPage({ onLogin, onRegister, onForgot }) {
-  const [user, setUser] = useState(null);
   const [error, setError] = useState(false);
   const [msjError, setMsjError] = useState("");
   const [email, setEmail] = useState("");
@@ -60,7 +59,7 @@ export default function LoginPage({ onLogin, onRegister, onForgot }) {
   const user = authData.user 
   //Buscar perfil
   const { data: profile, error: profileError } = 
-    await supabase .from('profiles') .select('role, id') .eq('id', user.id) .maybeSingle() 
+    await supabase.from('profiles').select('role, id').eq('id', user.id).maybeSingle()
   if (profileError) {
     setError(true);
     setMsjError('Ocurrió un error al cargar el perfil: ' + profileError.message);
@@ -179,47 +178,4 @@ export default function LoginPage({ onLogin, onRegister, onForgot }) {
     </div>
     </>
   );
-
-
-
-
-
-async function registrarse(
-  email,
-  password,
-  username
-) {
-
-  // 1. Crear usuario Auth
-  const { data, error } =
-    await supabase.auth.signUp({
-      email,
-      password
-    })
-
-  if(error) {
-    console.log(error.message)
-    return
-  }
-
-  // 2. Crear profile enlazado
-  const { error: profileError } =
-    await supabase
-      .from('profiles')
-      .insert({
-        id: data.user.id,
-        username: username,
-        role: 'usuario'
-      })
-
-  if(profileError) {
-    console.log(profileError.message)
-    return
-  }
-
-  console.log('Usuario creado')
-}
-
-
-  
 }

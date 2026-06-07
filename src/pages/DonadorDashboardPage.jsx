@@ -11,7 +11,6 @@ import { getDashboardDonator } from "../services/DonadorDashboardPage";
 export default function DonadorDashboardPage({ onLogout, setScreen }) {
   const [activeTab, setActiveTab] = useState("Mis donaciones");
   const [showRegister, setShowRegister] = useState(false);
-  const [showEditUser, setShowEditUser] = useState(false);
 
   // Datos crudos de la Base de Datos
   const [rows, setRows] = useState([]);
@@ -26,10 +25,6 @@ export default function DonadorDashboardPage({ onLogout, setScreen }) {
   const [selectedDonation, setSelectedDonation] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-
-  const handleEditUser = () => {
-  setScreen("edit-userdonador");
-};
 
   // ─── 1. FUNCIÓN DE CARGA REUTILIZABLE ───
   const loadDonations = () => {

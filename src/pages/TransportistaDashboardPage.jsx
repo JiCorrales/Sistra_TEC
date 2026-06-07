@@ -13,7 +13,7 @@ import DeliverLoadPage from "./DeliverLoadPage";
  * Props:
  *   onLogout() — navigate back to login
  */
-export default function TransportistaDashboardPage({ onLogout }) {
+export default function TransportistaDashboardPage({ onLogout, setScreen }) {
   const [delivering, setDelivering] = useState(null);
 
   if (delivering) {
@@ -65,6 +65,9 @@ export default function TransportistaDashboardPage({ onLogout }) {
       </div>
 
       <Footer />
+      <Btn onClick={() => setScreen("edit-userdonador")}>
+    Editar usuario
+  </Btn>
     </PageWrapper>
   );
 }

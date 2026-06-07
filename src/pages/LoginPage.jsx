@@ -70,7 +70,7 @@ export default function LoginPage({ onLogin, onRegister, onForgot }) {
   setError(false);
   setMsjError('');
   console.log('Perfil cargado:', profile);
-  onLogin("admin"); //profile.role
+  onLogin("transportista"); //profile.role
   /**return { success: true, 
     session: authData.session, 
     user: { id: user.id, role: profile.role } }

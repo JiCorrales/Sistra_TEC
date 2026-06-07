@@ -56,8 +56,8 @@ export default function App() {
     />
   );
     case "app/transport":
-      return <TransportistaDashboardPage onLogout={handleLogout} />;
-      
+      return <TransportistaDashboardPage onLogout={handleLogout}setScreen={setScreen} />;
+
     case "edit-userdonador":
       return <EditUserPage onBack={() => setScreen("app/donador")} />;
     case "edit-usertransportista":

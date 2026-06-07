@@ -18,16 +18,16 @@ export const mockDonations = [
 ];
 
 export const mockUsers = [
-  { id: "USR-001", usuario: "admin_tec",   rol: "Administrador" },
-  { id: "USR-002", usuario: "carlos_mora", rol: "Donador" },
-  { id: "USR-003", usuario: "trans_01",    rol: "Transportista" },
-  { id: "USR-004", usuario: "ana_jimenez", rol: "Donador" },
-  { id: "USR-005", usuario: "trans_02",    rol: "Transportista" },
+  { id: "USR-001", usuario: "admin_tec", nombre: "Andrea", apellido: "Campos", cedula: "1-1111-1111", correo: "admin@sistratec.cr", telefono: "2222-1000", rol: "Administrador", estado: "Activo" },
+  { id: "USR-002", usuario: "carlos_mora", nombre: "Carlos", apellido: "Mora", cedula: "1-2222-2222", correo: "carlos.mora@mail.com", telefono: "8888-1200", rol: "Donador", estado: "Activo" },
+  { id: "USR-003", usuario: "trans_01", nombre: "Jose", apellido: "Solis", cedula: "1-3333-3333", correo: "jose.solis@mail.com", telefono: "8888-1300", rol: "Transportista", estado: "Activo" },
+  { id: "USR-004", usuario: "ana_jimenez", nombre: "Ana", apellido: "Jimenez", cedula: "1-4444-4444", correo: "ana.jimenez@mail.com", telefono: "8888-1400", rol: "Donador", estado: "Inactivo" },
+  { id: "USR-005", usuario: "trans_02", nombre: "Mario", apellido: "Vega", cedula: "1-5555-5555", correo: "mario.vega@mail.com", telefono: "8888-1500", rol: "Transportista", estado: "Activo" },
 ];
 
 export const mockBeneficiarios = [
-  { id: "BEN-001", nombre: "Hogar Esperanza",  ayudas: 14, fechaInicio: "2023-01-15" },
-  { id: "BEN-002", nombre: "Casa del Niño",    ayudas: 8,  fechaInicio: "2022-06-20" },
-  { id: "BEN-003", nombre: "Cruz Roja CR",     ayudas: 22, fechaInicio: "2021-03-10" },
-  { id: "BEN-004", nombre: "Escuela La Unión", ayudas: 5,  fechaInicio: "2024-02-01" },
+  { id: "BEN-001", nombre: "Hogar Esperanza", tipo: "Albergue", contacto: "Laura Mendez", correo: "contacto@hogaresperanza.cr", telefono: "2222-3000", direccion: "San Jose, Barrio Lujan", ayudas: 14, fechaInicio: "2023-01-15", estado: "Activo" },
+  { id: "BEN-002", nombre: "Casa del Nino", tipo: "Centro infantil", contacto: "Marcos Rojas", correo: "info@casadelnino.cr", telefono: "2222-3200", direccion: "Heredia centro", ayudas: 8, fechaInicio: "2022-06-20", estado: "Activo" },
+  { id: "BEN-003", nombre: "Cruz Roja CR", tipo: "Salud", contacto: "Patricia Castro", correo: "donaciones@cruzroja.cr", telefono: "2222-3400", direccion: "San Jose, Zapote", ayudas: 22, fechaInicio: "2021-03-10", estado: "Activo" },
+  { id: "BEN-004", nombre: "Escuela La Union", tipo: "Educacion", contacto: "Elena Vargas", correo: "escuela.union@mep.go.cr", telefono: "2222-3600", direccion: "Cartago, Tres Rios", ayudas: 5, fechaInicio: "2024-02-01", estado: "Inactivo" },
 ];

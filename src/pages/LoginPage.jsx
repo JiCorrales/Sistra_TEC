@@ -20,8 +20,6 @@ export default function LoginPage({ onLogin, onRegister, onForgot }) {
 
   const handleLogin = async () => {
     // 1. Intentar autenticación 
-    const { data: authData, error: authError } = 
-        await supabase.auth.signInWithPassword({ email, password }) 
     //Ver errores
     if(!email){
       setMsjError('Por favor ingrese su correo electrónico');
@@ -37,6 +35,8 @@ export default function LoginPage({ onLogin, onRegister, onForgot }) {
       setError(true);
       return
     }
+        const { data: authData, error: authError } = 
+        await supabase.auth.signInWithPassword({ email, password }) 
   if (authError) { 
     // Email no confirmado 
     if ( authError.message.includes('Email not confirmed') ) 

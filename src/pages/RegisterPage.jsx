@@ -110,7 +110,7 @@ export default function RegisterPage({ onBack }) {
       .insert({
         id: data.user.id,
         username: correo,
-        role: 'donador',
+        role: "donor",
         first_name: nombre,
         last_name: apellido,
         phone: telefono

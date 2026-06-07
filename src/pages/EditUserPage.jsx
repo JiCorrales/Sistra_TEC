@@ -113,13 +113,16 @@ export default function EditUserPage({ onBack }) {
 
 
   const { error2 } = await supabase.auth.updateUser({
-    password: contraseña
+    password: contraseña,
+    email: correo
   });
 
   if (error2) {
     alert("Error con contraseña: " +error2.message);
     return;
   }
+
+
    
     setSubmitted(true);
   } 
@@ -129,8 +132,8 @@ export default function EditUserPage({ onBack }) {
       <SuccessCard
         emoji="✅"
         title="Usuario editado exitoso!"
-        message="Tu cuenta ha sido creada correctamente."
-        btnLabel="Ir al inicio de sesión"
+        message="Tu cuenta ha sido actualizada correctamente."
+        btnLabel="Volver"
         onAction={onBack}
       />
     );

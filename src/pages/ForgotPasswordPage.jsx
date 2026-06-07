@@ -21,7 +21,9 @@ export default function ForgotPasswordPage({ onBack }) {
     alert("Por favor ingrese un correo electrónico válido");
     return;
   }
-  const { error } = await supabase.auth.resetPasswordForEmail(email);
+  const { error } = await supabase.auth.resetPasswordForEmail(email,{
+     redirectTo: "http://localhost:3000/updatePassword"
+  });
   if (error ) {
     console.log(error.message);
     alert("Ocurrió un error al enviar el correo: " + error.message);

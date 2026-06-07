@@ -25,8 +25,8 @@ export default function App() {
   const handleLogin = (role) => {
     const map = {
       admin:          "app/admin",
-      donador:        "app/donador",
-      transportista:  "app/transport",
+      donor:        "app/donador",
+      transporter:  "app/transport",
     };
     setScreen(map[role] || "login");
   };

@@ -70,14 +70,17 @@ export default function LoginPage({ onLogin, onRegister, onForgot }) {
   setError(false);
   setMsjError('');
   console.log('Perfil cargado:', profile);
-  onLogin("transportista"); //profile.role
-  /**return { success: true, 
+  onLogin(profile.role); //profile.role
+  
+  return { success: true, 
     session: authData.session, 
     user: { id: user.id, role: profile.role } }
-  }; */
+  }; 
+  /** 
   return { success: true,      
     user: { id: 1, role:"donador" } }
   };
+  */
 
   return (
     <>
@@ -170,10 +173,7 @@ export default function LoginPage({ onLogin, onRegister, onForgot }) {
           fontSize: 12, color: gray600, textAlign: "left",
           border: `1px solid ${gray200}`,
         }}>
-          <strong>Credenciales de demo:</strong><br />
-          <code>admin</code> / <code>admin</code> → Administrador<br />
-          <code>donador</code> / <code>1234</code> → Donador<br />
-          <code>transportista</code> / <code>1234</code> → Transportista
+          
         </div>
       </div>
     </div>

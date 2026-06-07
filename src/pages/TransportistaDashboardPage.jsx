@@ -6,9 +6,7 @@ import {
 import { white, gray200, gray600, gray800 } from "../tokens";
 import DeliverLoadPage from "./DeliverLoadPage";
 import { getTransportistaDashboard } from "../services/TransportistaDashboard";
-
-// Reemplazá este ID por el del usuario logueado cuando se integre AuthContext
-const TRANSPORTISTA_ID = "uuid-del-transportista-logueado";
+import { useAuth } from "../context/AuthContext";
 
 /**
  * TransportistaDashboardPage
@@ -16,31 +14,39 @@ const TRANSPORTISTA_ID = "uuid-del-transportista-logueado";
  *   onLogout() — navigate back to login
  */
 export default function TransportistaDashboardPage({ onLogout, setScreen }) {
+  const { user } = useAuth();
+  const transportistaId = user?.id;
+
   const [delivering, setDelivering] = useState(null);
   const [donations, setDonations] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Si la sesión aún carga o no hay usuario logueado, no disparamos la carga
+    if (!transportistaId) return;
+
     let active = true;
-    getTransportistaDashboard(TRANSPORTISTA_ID).then((data) => {
+    setLoading(true);
+    getTransportistaDashboard(transportistaId).then((data) => {
       if (active) {
         setDonations(Array.isArray(data) ? data : []);
         setLoading(false);
       }
     });
     return () => { active = false; };
-  }, []);
+  }, [transportistaId]);
 
   if (delivering) {
     return (
       <DeliverLoadPage
         donation={delivering}
-        transportistaId={TRANSPORTISTA_ID}
+        transportistaId={transportistaId}
         onBack={() => {
           setDelivering(null);
           // Refrescar la lista después de confirmar
+          if (!transportistaId) return;
           setLoading(true);
-          getTransportistaDashboard(TRANSPORTISTA_ID).then((data) => {
+          getTransportistaDashboard(transportistaId).then((data) => {
             setDonations(Array.isArray(data) ? data : []);
             setLoading(false);
           });

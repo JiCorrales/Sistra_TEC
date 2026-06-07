@@ -1,9 +1,8 @@
 import {supabase} from "../supabaseClient";
-const userIdLogueado = "a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d";
-export const addDonation = async (donationData, publicImageUrl) => {
+export const addDonation = async (donationData, publicImageUrl, donorId) => {
     try{
         const {data: trackingId, error } = await supabase.rpc("AddDonation", {
-            p_donor_id: userIdLogueado,//cHANGE 
+            p_donor_id: donorId,
             p_donation_type: donationData.donationType,
             p_description: donationData.description || null,
             p_beneficiary_id: parseInt(donationData.beneficiaryId, 10),

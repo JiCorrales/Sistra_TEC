@@ -5,19 +5,15 @@ import {
 } from "../components/UI";
 import {
   getAdminUsers,
-  toggleAdminUserStatus,
   updateAdminUserAccess,
 } from "../services/AdminUsers";
+import { ROLE_OPTIONS_ES, roleLabel, roleValue } from "../utils/roles";
 import { tealLight, tealDark } from "../tokens";
-
-const ROLE_OPTIONS = ["Administrador", "Donador", "Transportista"];
-const USER_STATUS_OPTIONS = ["Activo", "Inactivo"];
 
 export default function AdminUsuariosPage() {
   const [users, setUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
   const [selectedUser, setSelectedUser] = useState(null);
 
   const loadUsers = async () => {
@@ -30,19 +26,14 @@ export default function AdminUsuariosPage() {
   }, []);
 
   const filteredUsers = useMemo(
-    () => filterUsers(users, searchTerm, roleFilter, statusFilter),
-    [users, searchTerm, roleFilter, statusFilter]
+    () => filterUsers(users, searchTerm, roleFilter),
+    [users, searchTerm, roleFilter]
   );
 
   const saveUserAccess = async (userId, accessData) => {
     await updateAdminUserAccess(userId, accessData);
     await loadUsers();
     setSelectedUser(null);
-  };
-
-  const changeUserStatus = async (userId) => {
-    const updatedUsers = await toggleAdminUserStatus(userId);
-    setUsers(updatedUsers);
   };
 
   if (selectedUser) {
@@ -61,21 +52,15 @@ export default function AdminUsuariosPage() {
 
       <div style={styles.filterRow}>
         <Input
-          placeholder="Buscar por usuario, nombre, correo o cedula"
+          placeholder="Buscar por usuario, nombre o correo"
           value={searchTerm}
           onChange={(event) => setSearchTerm(event.target.value)}
         />
         <Select
           placeholder="Rol"
-          options={ROLE_OPTIONS}
+          options={ROLE_OPTIONS_ES}
           value={roleFilter}
           onChange={(event) => setRoleFilter(event.target.value)}
-        />
-        <Select
-          placeholder="Estado"
-          options={USER_STATUS_OPTIONS}
-          value={statusFilter}
-          onChange={(event) => setStatusFilter(event.target.value)}
         />
         <Btn
           size="sm"
@@ -83,7 +68,6 @@ export default function AdminUsuariosPage() {
           onClick={() => {
             setSearchTerm("");
             setRoleFilter("");
-            setStatusFilter("");
           }}
         >
           Limpiar
@@ -91,7 +75,7 @@ export default function AdminUsuariosPage() {
       </div>
 
       <Table
-        columns={["Usuario", "Nombre", "Correo", "Telefono", "Rol", "Estado", "Acciones"]}
+        columns={["Usuario", "Nombre", "Correo", "Telefono", "Rol", "Acciones"]}
         rows={filteredUsers}
         renderRow={(user) => (
           <TR key={user.id} hover>
@@ -101,19 +85,14 @@ export default function AdminUsuariosPage() {
             </TD>
             <TD>
               {user.nombre} {user.apellido}
-              <div style={styles.secondaryText}>{user.cedula}</div>
             </TD>
             <TD>{user.correo}</TD>
             <TD>{user.telefono}</TD>
             <TD><RoleBadge role={user.rol} /></TD>
-            <TD><StatusBadge status={user.estado} /></TD>
             <TD>
               <div style={styles.actionRow}>
                 <Btn size="sm" variant="ghost" onClick={() => setSelectedUser(user)}>
                   Acceso
-                </Btn>
-                <Btn size="sm" variant="secondary" onClick={() => changeUserStatus(user.id)}>
-                  {user.estado === "Activo" ? "Desactivar" : "Activar"}
                 </Btn>
               </div>
             </TD>
@@ -125,8 +104,9 @@ export default function AdminUsuariosPage() {
 }
 
 function UserAccessForm({ user, onBack, onSave }) {
-  const [role, setRole] = useState(user.rol);
-  const [status, setStatus] = useState(user.estado);
+  // El select trabaja con la etiqueta en español; al guardar se convierte
+  // al valor interno (inglés) con roleValue antes de tocar la base de datos.
+  const [role, setRole] = useState(roleLabel(user.rol));
 
   const submitUserAccess = () => {
     if (!role) {
@@ -135,7 +115,7 @@ function UserAccessForm({ user, onBack, onSave }) {
     }
 
     // Persona 2 only manages admin access; personal profile editing stays out of scope.
-    onSave(user.id, { rol: role, estado: status });
+    onSave(user.id, { rol: roleValue(role) });
   };
 
   return (
@@ -144,7 +124,6 @@ function UserAccessForm({ user, onBack, onSave }) {
       <div style={styles.formCard}>
         <div style={styles.readOnlyGrid}>
           <ReadOnlyField label="Nombre completo" value={`${user.nombre} ${user.apellido}`} />
-          <ReadOnlyField label="Cedula" value={user.cedula} />
           <ReadOnlyField label="Correo" value={user.correo} />
           <ReadOnlyField label="Telefono" value={user.telefono} />
         </div>
@@ -152,15 +131,9 @@ function UserAccessForm({ user, onBack, onSave }) {
         <div style={styles.accessGrid}>
           <Select
             label="Rol:"
-            options={ROLE_OPTIONS}
+            options={ROLE_OPTIONS_ES}
             value={role}
             onChange={(event) => setRole(event.target.value)}
-          />
-          <Select
-            label="Estado:"
-            options={USER_STATUS_OPTIONS}
-            value={status}
-            onChange={(event) => setStatus(event.target.value)}
           />
         </div>
 
@@ -184,7 +157,7 @@ function ReadOnlyField({ label, value }) {
   );
 }
 
-function filterUsers(users, searchTerm, roleFilter, statusFilter) {
+function filterUsers(users, searchTerm, roleFilter) {
   const normalizedSearchTerm = normalizeSearchText(searchTerm);
 
   return users.filter((user) => {
@@ -192,7 +165,6 @@ function filterUsers(users, searchTerm, roleFilter, statusFilter) {
       user.usuario,
       user.nombre,
       user.apellido,
-      user.cedula,
       user.correo,
       user.telefono,
     ].join(" "));
@@ -200,10 +172,11 @@ function filterUsers(users, searchTerm, roleFilter, statusFilter) {
     const matchesSearch = normalizedSearchTerm
       ? searchableText.includes(normalizedSearchTerm)
       : true;
-    const matchesRole = roleFilter ? user.rol === roleFilter : true;
-    const matchesStatus = statusFilter ? user.estado === statusFilter : true;
+    // El usuario guarda el rol en inglés; el filtro muestra etiquetas en español,
+    // así que comparamos traduciendo el valor interno a su etiqueta.
+    const matchesRole = roleFilter ? roleLabel(user.rol) === roleFilter : true;
 
-    return matchesSearch && matchesRole && matchesStatus;
+    return matchesSearch && matchesRole;
   });
 }
 
@@ -212,28 +185,18 @@ function normalizeSearchText(value) {
 }
 
 function RoleBadge({ role }) {
+  // role llega en su valor interno (inglés); se traduce a español para mostrar.
+  const label = roleLabel(role);
   const stylesByRole = {
     Administrador: { background: "#ede9fe", color: "#7c3aed" },
     Donador: { background: tealLight, color: tealDark },
     Transportista: { background: "#fff7ed", color: "#c2410c" },
   };
-  const badgeStyle = stylesByRole[role] || { background: "#f1f5f9", color: "#475569" };
+  const badgeStyle = stylesByRole[label] || { background: "#f1f5f9", color: "#475569" };
 
   return (
     <span style={{ ...badgeStyle, padding: "3px 10px", borderRadius: 20, fontSize: 12, fontWeight: 600 }}>
-      {role}
-    </span>
-  );
-}
-
-function StatusBadge({ status }) {
-  const badgeStyle = status === "Activo"
-    ? { background: "#f0fdf4", color: "#15803d" }
-    : { background: "#f1f5f9", color: "#475569" };
-
-  return (
-    <span style={{ ...badgeStyle, padding: "3px 10px", borderRadius: 20, fontSize: 12, fontWeight: 600 }}>
-      {status}
+      {label}
     </span>
   );
 }
@@ -241,7 +204,7 @@ function StatusBadge({ status }) {
 const styles = {
   filterRow: {
     display: "grid",
-    gridTemplateColumns: "minmax(260px, 1fr) 180px 180px auto",
+    gridTemplateColumns: "minmax(260px, 1fr) 180px auto",
     gap: 12,
     alignItems: "end",
     marginBottom: 20,

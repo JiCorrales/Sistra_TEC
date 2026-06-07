@@ -7,8 +7,11 @@ import {
 import { DetailModal } from "../components/DetailModal";
 import RegisterDonationPage from "./RegisterDonationPage";
 import { getDashboardDonator } from "../services/DonadorDashboardPage";
+import { useAuth } from "../context/AuthContext";
 
 export default function DonadorDashboardPage({ onLogout, setScreen }) {
+  const { user } = useAuth();
+
   const [activeTab, setActiveTab] = useState("Mis donaciones");
   const [showRegister, setShowRegister] = useState(false);
 
@@ -28,8 +31,11 @@ export default function DonadorDashboardPage({ onLogout, setScreen }) {
 
   // ─── 1. FUNCIÓN DE CARGA REUTILIZABLE ───
   const loadDonations = () => {
+    // Si la sesión aún carga o no hay usuario logueado, no disparamos la carga
+    if (!user?.id) return;
+
     setLoading(true);
-    getDashboardDonator()
+    getDashboardDonator(user.id)
       .then(data => {
         setRows(data);
         setLoading(false);
@@ -40,10 +46,11 @@ export default function DonadorDashboardPage({ onLogout, setScreen }) {
       });
   };
 
-  // ─── 2. CARGA INICIAL AL MONTAR EL COMPONENTE ───
+  // ─── 2. CARGA INICIAL AL MONTAR EL COMPONENTE (y cuando se conoce el usuario) ───
   useEffect(() => {
     loadDonations();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]);
 
   // ─── 3. MANEJADOR MÁGICO PARA CUANDO SE TERMINA DE REGISTRAR ───
   const handleDonationRegistered = () => {

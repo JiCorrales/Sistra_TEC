@@ -6,6 +6,7 @@ import {
 import { teal, tealLight, gray50, gray200, gray600 } from "../tokens";
 import { supabase } from "../supabaseClient";
 import { addDonation } from "../services/AddDonation"; // Ruta hacia tu archivo de servicio
+import { useAuth } from "../context/AuthContext";
 
 /**
  * RegisterDonationPage
@@ -14,6 +15,8 @@ import { addDonation } from "../services/AddDonation"; // Ruta hacia tu archivo 
  * onDone() — called after successful registration
  */
 export default function RegisterDonationPage({ onBack, onDone }) {
+  const { user } = useAuth();
+
   const [done, setDone] = useState(false);
   const [dragging, setDragging] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -63,6 +66,11 @@ export default function RegisterDonationPage({ onBack, onDone }) {
       return;
     }
 
+    if (!user?.id) {
+      alert("No se pudo identificar al usuario. Inicia sesión nuevamente.");
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -94,7 +102,7 @@ export default function RegisterDonationPage({ onBack, onDone }) {
         beneficiaryId // Enviará el ID numérico correcto para la FK
       };
 
-      const trackingId = await addDonation(donationData, publicImageUrl);
+      const trackingId = await addDonation(donationData, publicImageUrl, user.id);
 
       if (trackingId) {
         setDone(true); // Despliega la tarjeta de SuccessCard

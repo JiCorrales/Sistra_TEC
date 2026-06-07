@@ -22,7 +22,7 @@ export default function ForgotPasswordPage({ onBack }) {
     return;
   }
   const { error } = await supabase.auth.resetPasswordForEmail(email,{
-     redirectTo: "http://localhost:3000/updatePassword"
+     redirectTo: window.location.origin
   });
   if (error ) {
     console.log(error.message);

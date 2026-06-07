@@ -6,6 +6,8 @@ import AdminDashboardPage      from "./pages/AdminDashboardPage";
 import DonadorDashboardPage    from "./pages/DonadorDashboardPage";
 import TransportistaDashboardPage from "./pages/TransportistaDashboardPage";
 import EditUserPage from "./pages/EditUserPage"
+import UpdatePasswordPage      from "./pages/UpdatePasswordPage";
+import { supabase } from "./supabaseClient";
 
 /**
  * App — root router for SISTRA-TEC (Modo Desarrollo Local)
@@ -21,6 +23,18 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem("sistratec_screen", screen);
   }, [screen]);
+
+  // 3. Detectamos el enlace de recuperación de contraseña que llega por correo.
+  // Supabase procesa el token del URL automáticamente (detectSessionInUrl=true) y
+  // emite el evento PASSWORD_RECOVERY; ahí mostramos la pantalla de cambio.
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "PASSWORD_RECOVERY") {
+        setScreen("update-password");
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, []);
 
   const handleLogin = (role) => {
     const map = {
@@ -44,6 +58,9 @@ export default function App() {
 
     case "register":
       return <RegisterPage onBack={() => setScreen("login")} />;
+
+    case "update-password":
+      return <UpdatePasswordPage onDone={() => setScreen("login")} />;
 
     case "app/admin":
       return <AdminDashboardPage onLogout={handleLogout} setScreen={setScreen} />;

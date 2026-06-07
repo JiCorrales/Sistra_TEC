@@ -92,32 +92,23 @@ export default function RegisterPage({ onBack }) {
     }
 
     //Crear usuario Auth
-    const { data, error } =
+    //El profile lo crea el trigger handle_new_user a partir de raw_user_meta_data.
+    //role se fuerza a 'donor' y username = email en el trigger (no se envian desde el cliente).
+    const { error } =
     await supabase.auth.signUp({
       email: correo,
       password: contraseña,
+      options: {
+        data: {
+          first_name: nombre,
+          last_name: apellido,
+          phone: telefono,
+        },
+      },
     })
 
   if(error) {
     alert("Error al crear el usuario: " + error.message);
-    return
-  }
-
-  //Crear profile enlazado
-  const { error: profileError } =
-    await supabase
-      .from('profiles')
-      .insert({
-        id: data.user.id,
-        username: correo,
-        role: "donor",
-        first_name: nombre,
-        last_name: apellido,
-        phone: telefono
-      })
-
-  if(profileError) {
-    alert("Error al crear el profile: " + profileError.message);
     return
   }
 

@@ -14,7 +14,7 @@ import AssignDonationPage from "./AssignDonationPage";
  * Props:
  *   onLogout() — navigate back to login
  */
-export default function AdminDashboardPage({ onLogout }) {
+export default function AdminDashboardPage({ onLogout, setScreen }) {
   const [activeTab, setActiveTab] = useState("Todas las donaciones");
   const [selectedDonation, setSelectedDonation] = useState(null);
   const [filterId, setFilterId] = useState("");
@@ -32,7 +32,7 @@ export default function AdminDashboardPage({ onLogout }) {
   const renderTab = () => {
     if (activeTab === "Beneficiarios") return <AdminBeneficiariosPage />;
     if (activeTab === "Usuarios")      return <AdminUsuariosPage />;
-    return <DonacionesTab filtered={filtered} filterId={filterId} setFilterId={setFilterId} onSelect={setSelectedDonation} />;
+    return <DonacionesTab filtered={filtered} filterId={filterId} setFilterId={setFilterId} onSelect={setSelectedDonation} setScreen={setScreen}/>;
   };
 
   return (
@@ -52,7 +52,7 @@ export default function AdminDashboardPage({ onLogout }) {
 }
 
 // ─── DONACIONES TAB ───────────────────────────────────────────────────────────
-function DonacionesTab({ filtered, filterId, setFilterId, onSelect }) {
+function DonacionesTab({ filtered, filterId, setFilterId, onSelect, setScreen  }) {
   return (
     <div style={{ display: "flex", gap: 24, padding: "28px 32px" }}>
       {/* Main content */}
@@ -61,6 +61,7 @@ function DonacionesTab({ filtered, filterId, setFilterId, onSelect }) {
           <Card title="Total Donaciones" value={12} />
           <Card title="En tránsito"      value={8} />
           <Card title="Entregadas"       value={4} />
+      
         </div>
         <SectionHeader title="Todas las donaciones." />
         <Table
@@ -80,14 +81,17 @@ function DonacionesTab({ filtered, filterId, setFilterId, onSelect }) {
             </TR>
           )}
         />
+             <Btn onClick={() => setScreen("edit-useradmin")}>Editar usuario</Btn>
+       
       </div>
-
+     
       {/* Sidebar */}
       <div style={{ width: 300 }}>
         {/* Filter */}
         <FilterPanel filterId={filterId} setFilterId={setFilterId} />
         {/* Report */}
         <ReportPanel />
+        
       </div>
     </div>
   );

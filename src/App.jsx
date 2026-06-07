@@ -46,7 +46,7 @@ export default function App() {
       return <RegisterPage onBack={() => setScreen("login")} />;
 
     case "app/admin":
-      return <AdminDashboardPage onLogout={handleLogout} />;
+      return <AdminDashboardPage onLogout={handleLogout} setScreen={setScreen} />;
 
     case "app/donador":
   return (
@@ -55,9 +55,9 @@ export default function App() {
       setScreen={setScreen}
     />
   );
-
     case "app/transport":
       return <TransportistaDashboardPage onLogout={handleLogout} />;
+      
     case "edit-userdonador":
       return <EditUserPage onBack={() => setScreen("app/donador")} />;
     case "edit-usertransportista":

@@ -70,10 +70,13 @@ export default function LoginPage({ onLogin, onRegister, onForgot }) {
   setError(false);
   setMsjError('');
   console.log('Perfil cargado:', profile);
-  onLogin(profile.role); 
-  return { success: true, 
+  onLogin("donador"); //profile.role
+  /**return { success: true, 
     session: authData.session, 
     user: { id: user.id, role: profile.role } }
+  }; */
+  return { success: true,      
+    user: { id: 1, role:"donador" } }
   };
 
   return (

@@ -5,6 +5,7 @@ import RegisterPage            from "./pages/RegisterPage";
 import AdminDashboardPage      from "./pages/AdminDashboardPage";
 import DonadorDashboardPage    from "./pages/DonadorDashboardPage";
 import TransportistaDashboardPage from "./pages/TransportistaDashboardPage";
+import EditUserPage from "./pages/EditUserPage"
 
 /**
  * App — root router for SISTRA-TEC (Modo Desarrollo Local)
@@ -48,10 +49,21 @@ export default function App() {
       return <AdminDashboardPage onLogout={handleLogout} />;
 
     case "app/donador":
-      return <DonadorDashboardPage onLogout={handleLogout} />;
+  return (
+    <DonadorDashboardPage
+      onLogout={handleLogout}
+      setScreen={setScreen}
+    />
+  );
 
     case "app/transport":
       return <TransportistaDashboardPage onLogout={handleLogout} />;
+    case "edit-userdonador":
+      return <EditUserPage onBack={() => setScreen("app/donador")} />;
+    case "edit-usertransportista":
+      return <EditUserPage onBack={() => setScreen("app/transport")} />;  
+    case "edit-useradmin":
+      return <EditUserPage onBack={() => setScreen("app/admin")} />;
 
     default:
       return (

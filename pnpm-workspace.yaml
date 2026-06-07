@@ -1,3 +1,11 @@
+# Configuración de pnpm para el proyecto (pnpm 11 lee estos settings desde aquí).
+
+# No correr el chequeo de estado de dependencias antes de cada script,
+# para que el aviso de core-js no rompa `pnpm start` / `pnpm build` con exit 1.
+verifyDepsBeforeRun: false
+
+# Reconocemos explícitamente los build scripts de core-js y los DENEGAMOS (false).
+# Solo imprimen un mensaje de donación; bloquearlos es intencional, por seguridad.
 allowBuilds:
-  core-js: set this to true or false
-  core-js-pure: set this to true or false
+  core-js: false
+  core-js-pure: false

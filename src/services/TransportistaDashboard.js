@@ -132,3 +132,22 @@ export const confirmDelivery = async ({
     return false;
   }
 };
+
+
+
+export const markAsInTransit = async (donationId) => {
+  try {
+    const { error } = await supabase
+      .from('donations')
+      .update({ 
+        status: 'En Tránsito',
+        status_updated_at: new Date().toISOString()
+      })
+      .eq('id', donationId);
+    if (error) throw error;
+    return true;
+  } catch (error) {
+    console.error("Error al marcar como En tránsito:", error);
+    return false;
+  }
+};

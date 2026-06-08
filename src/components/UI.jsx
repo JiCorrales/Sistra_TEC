@@ -195,9 +195,19 @@ export const Navbar = ({ tabs, activeTab, setActiveTab, onLogout }) => (
     </div>
     <button
       onClick={onLogout}
-      style={{ background: "none", border: "none", cursor: "pointer", padding: "0 20px", display: "flex", alignItems: "center" }}
+      style={{ background: "none", border: "none", cursor: "pointer", padding: "0 20px", display: "flex", alignItems: "center", gap:"10px" }}
       title="Cerrar sesión"
-    >
+    >   
+      <span
+        style={{
+          color: "white",
+          fontSize: "16px",
+          fontWeight: "600",
+          fontFamily: "Arial, sans-serif"
+        }}
+      >
+        Cerrar Sesión
+      </span>
       <div style={{
         width: 38, height: 38, borderRadius: "50%",
         background: "rgba(255,255,255,0.2)",

@@ -88,6 +88,9 @@ export default function TransportistaDashboardPage({ onLogout, setScreen }) {
         setActiveTab={() => {}}
         onLogout={onLogout}
       />
+      <div style={{ padding: "16px 32px", borderTop: `1px solid ${gray200}`, textAlign: "right" }}>
+        <Btn onClick={() => setScreen("edit-usertransportista")}>Editar usuario</Btn>
+      </div>
 
       <div style={{ flex: 1, display: "flex", gap: 24, padding: "28px 32px" }}>
         <div style={{ flex: 1 }}>
@@ -134,9 +137,7 @@ export default function TransportistaDashboardPage({ onLogout, setScreen }) {
         </div>
       </div>
 
-      <div style={{ padding: "16px 32px", borderTop: `1px solid ${gray200}`, textAlign: "right" }}>
-        <Btn onClick={() => setScreen("edit-userdonador")}>Editar usuario</Btn>
-      </div>
+
 
       <Footer />
 

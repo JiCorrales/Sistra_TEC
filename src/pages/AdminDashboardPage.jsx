@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   Navbar, PageWrapper, Footer,
   SectionHeader, Card, Table, TR, TD, Badge,
@@ -11,28 +11,43 @@ import AdminBeneficiariosPage from "./AdminBeneficiariosPage";
 import AdminUsuariosPage from "./AdminUsuariosPage";
 import AssignDonationPage from "./AssignDonationPage";
 
-const ESTADOS = ["En tránsito", "Entregada", "Pendiente"];
+const ESTADOS = ["Recibido", "Clasificado", "En tránsito", "Entregado"];
 const TIPOS = ["Alimentos", "Ropa", "Medicamentos", "Electrónica"];
 
-/**
- * AdminDashboardPage
- * Props:
- *   onLogout()  — navigate back to login
- *   setScreen() — cambiar de pantalla (ej. editar usuario)
- */
+const normalizeText = (value = "") =>
+  value
+    .toString()
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+
+const normalizeEstado = (estado = "") => normalizeText(estado);
+
 export default function AdminDashboardPage({ onLogout, setScreen }) {
   const [activeTab, setActiveTab] = useState("Todas las donaciones");
   const [assigningDonation, setAssigningDonation] = useState(null);
+  const [reloadDonations, setReloadDonations] = useState(0);
 
-  // Sub-page: asignar donación a transportista (flujo existente preservado)
   if (assigningDonation) {
-    return <AssignDonationPage donation={assigningDonation} onBack={() => setAssigningDonation(null)} />;
+    return (
+      <AssignDonationPage
+        donation={assigningDonation}
+        onBack={() => {
+          setAssigningDonation(null);
+          setReloadDonations((prev) => prev + 1);
+        }}
+        onDonationUpdated={() => {
+          setReloadDonations((prev) => prev + 1);
+        }}
+      />
+    );
   }
 
   const renderTab = () => {
     if (activeTab === "Beneficiarios") return <AdminBeneficiariosPage />;
-    if (activeTab === "Usuarios")      return <AdminUsuariosPage />;
-    return <DonacionesTab onAssign={setAssigningDonation} />;
+    if (activeTab === "Usuarios") return <AdminUsuariosPage />;
+    return <DonacionesTab reloadTrigger={reloadDonations} onAssign={setAssigningDonation} />;
   };
 
   return (
@@ -54,68 +69,79 @@ export default function AdminDashboardPage({ onLogout, setScreen }) {
   );
 }
 
-// ─── DONACIONES TAB ───────────────────────────────────────────────────────────
-function DonacionesTab({ onAssign }) {
-  // Datos crudos cargados desde el servicio (hoy mock, mañana Supabase)
+function DonacionesTab({ reloadTrigger, onAssign }) {
   const [donations, setDonations] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Filtros (panel derecho) — se aplican en tiempo real
   const [filterId, setFilterId] = useState("");
   const [filterEstado, setFilterEstado] = useState("");
   const [filterTipo, setFilterTipo] = useState("");
-
-  // Donación seleccionada para el modal de detalles
   const [detail, setDetail] = useState(null);
 
-  // ─── Carga inicial ───
-  useEffect(() => {
-    let active = true;
-    getAllDonations()
-      .then((data) => {
-        if (active) {
-          setDonations(Array.isArray(data) ? data : []);
-          setLoading(false);
-        }
-      })
-      .catch((err) => {
-        console.error("Error al cargar donaciones del admin:", err);
-        if (active) setLoading(false);
-      });
-    return () => { active = false; };
+  const loadDonations = useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await getAllDonations();
+      setDonations(Array.isArray(data) ? data : []);
+    } catch (err) {
+      console.error("Error al cargar donaciones del admin:", err);
+      setDonations([]);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  // ─── Filtrado en tiempo real ───
+  useEffect(() => {
+    loadDonations();
+  }, [loadDonations, reloadTrigger]);
+
   const filtered = donations.filter((d) => {
     const haystack = `${d.id} ${d.beneficiario} ${d.donante}`.toLowerCase();
-    const byText   = filterId ? haystack.includes(filterId.toLowerCase().trim()) : true;
-    const byEstado = filterEstado ? d.estado === filterEstado : true;
-    const byTipo   = filterTipo ? d.tipo === filterTipo : true;
+    const byText = filterId ? haystack.includes(filterId.toLowerCase().trim()) : true;
+
+    const byEstado = filterEstado
+      ? normalizeEstado(d.estado) === normalizeEstado(filterEstado)
+      : true;
+
+    const byTipo = filterTipo ? d.tipo === filterTipo : true;
+
     return byText && byEstado && byTipo;
   });
 
-  const clearFilters = () => { setFilterId(""); setFilterEstado(""); setFilterTipo(""); };
+  const clearFilters = () => {
+    setFilterId("");
+    setFilterEstado("");
+    setFilterTipo("");
+  };
+
   const hasFilters = Boolean(filterId || filterEstado || filterTipo);
 
-  // ─── Métricas (sobre el total global, no el filtrado) ───
-  const total      = donations.length;
-  const enTransito = donations.filter((d) => d.estado === "En tránsito").length;
-  const entregadas = donations.filter((d) => d.estado === "Entregada").length;
+  const total = donations.length;
+  const enTransito = donations.filter((d) => {
+    const estado = normalizeEstado(d.estado);
+    return estado === "en transito";
+  }).length;
+
+  const entregadas = donations.filter((d) => {
+    const estado = normalizeEstado(d.estado);
+    return estado === "entregado";
+  }).length;
 
   return (
     <div style={{ display: "flex", gap: 24, padding: "28px 32px" }}>
-      {/* Main content */}
       <div style={{ flex: 1 }}>
         <div style={{ display: "flex", gap: 16, marginBottom: 24 }}>
           <Card title="Total Donaciones" value={total} />
-          <Card title="En tránsito"      value={enTransito} />
-          <Card title="Entregadas"       value={entregadas} />
+          <Card title="En tránsito" value={enTransito} />
+          <Card title="Entregadas" value={entregadas} />
         </div>
 
         <SectionHeader title="Todas las donaciones." />
 
         {loading ? (
-          <div style={{ padding: 24, color: "#64748b" }}>Cargando donaciones del sistema...</div>
+          <div style={{ padding: 24, color: "#64748b" }}>
+            Cargando donaciones del sistema...
+          </div>
         ) : (
           <Table
             columns={["Donación", "Tipo de donación", "Beneficiario", "Estado", "Acciones"]}
@@ -125,7 +151,9 @@ function DonacionesTab({ onAssign }) {
                 <TD>{d.id}</TD>
                 <TD>{d.tipo}</TD>
                 <TD>{d.beneficiario}</TD>
-                <TD><Badge estado={d.estado} /></TD>
+                <TD>
+                  <Badge estado={d.estado} />
+                </TD>
                 <TD>
                   <div style={{ display: "flex", gap: 8 }}>
                     <Btn size="sm" variant="secondary" onClick={() => setDetail(d)}>
@@ -142,35 +170,49 @@ function DonacionesTab({ onAssign }) {
         )}
       </div>
 
-      {/* Sidebar */}
       <div style={{ width: 300 }}>
         <FilterPanel
-          filterId={filterId}        setFilterId={setFilterId}
-          filterEstado={filterEstado} setFilterEstado={setFilterEstado}
-          filterTipo={filterTipo}    setFilterTipo={setFilterTipo}
-          onClear={clearFilters}     hasFilters={hasFilters}
+          filterId={filterId}
+          setFilterId={setFilterId}
+          filterEstado={filterEstado}
+          setFilterEstado={setFilterEstado}
+          filterTipo={filterTipo}
+          setFilterTipo={setFilterTipo}
+          onClear={clearFilters}
+          hasFilters={hasFilters}
           resultCount={filtered.length}
         />
         <ReportPanel allRows={donations} filteredRows={filtered} hasFilters={hasFilters} />
       </div>
 
-      {/* Modal de detalles */}
-      <DetailModal isOpen={Boolean(detail)} onClose={() => setDetail(null)} donation={detail} />
+      <DetailModal
+        isOpen={Boolean(detail)}
+        onClose={() => setDetail(null)}
+        donation={detail}
+      />
     </div>
   );
 }
 
-// ─── FILTER PANEL ─────────────────────────────────────────────────────────────
 function FilterPanel({
-  filterId, setFilterId,
-  filterEstado, setFilterEstado,
-  filterTipo, setFilterTipo,
-  onClear, hasFilters, resultCount,
+  filterId,
+  setFilterId,
+  filterEstado,
+  setFilterEstado,
+  filterTipo,
+  setFilterTipo,
+  onClear,
+  hasFilters,
+  resultCount,
 }) {
   return (
     <div style={{
-      background: "#fff", borderRadius: 10, border: "1px solid #e2e8f0",
-      padding: 24, marginBottom: 20, boxShadow: "0 1px 4px rgba(0,0,0,0.05)",
+      background: "#fff",
+      borderRadius: 10,
+      border: "1px solid #e2e8f0",
+      padding: 24,
+      marginBottom: 20,
+      boxShadow: "0 1px 4px rgba(0,0,0,0.05)",
     }}>
       <SectionHeader title="Filtrar las Donaciones" />
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
@@ -195,7 +237,12 @@ function FilterPanel({
           <span style={{ fontSize: 12, color: "#94a3b8" }}>
             {resultCount} resultado{resultCount !== 1 ? "s" : ""}
           </span>
-          <Btn size="sm" variant="ghost" onClick={onClear} style={{ opacity: hasFilters ? 1 : 0.5 }}>
+          <Btn
+            size="sm"
+            variant="ghost"
+            onClick={onClear}
+            style={{ opacity: hasFilters ? 1 : 0.5 }}
+          >
             Limpiar filtros
           </Btn>
         </div>
@@ -204,7 +251,6 @@ function FilterPanel({
   );
 }
 
-// ─── REPORT PANEL ─────────────────────────────────────────────────────────────
 function ReportPanel({ allRows, filteredRows, hasFilters }) {
   const [formato, setFormato] = useState("");
   const [usarFiltros, setUsarFiltros] = useState(true);
@@ -214,11 +260,14 @@ function ReportPanel({ allRows, filteredRows, hasFilters }) {
       alert("Elegí un formato para el reporte (PDF, Excel o CSV).");
       return;
     }
+
     const rows = usarFiltros ? filteredRows : allRows;
+
     if (!rows.length) {
       alert("No hay donaciones para incluir en el reporte con la selección actual.");
       return;
     }
+
     generateReport(formato, rows);
   };
 
@@ -226,8 +275,11 @@ function ReportPanel({ allRows, filteredRows, hasFilters }) {
 
   return (
     <div style={{
-      background: "#fff", borderRadius: 10, border: "1px solid #e2e8f0",
-      padding: 24, boxShadow: "0 1px 4px rgba(0,0,0,0.05)",
+      background: "#fff",
+      borderRadius: 10,
+      border: "1px solid #e2e8f0",
+      padding: 24,
+      boxShadow: "0 1px 4px rgba(0,0,0,0.05)",
     }}>
       <SectionHeader title="Reporte de Donaciones" />
       <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
@@ -237,7 +289,14 @@ function ReportPanel({ allRows, filteredRows, hasFilters }) {
           value={formato}
           onChange={(e) => setFormato(e.target.value)}
         />
-        <label style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: "#475569", cursor: "pointer" }}>
+        <label style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 8,
+          fontSize: 13,
+          color: "#475569",
+          cursor: "pointer",
+        }}>
           <input
             type="checkbox"
             checked={usarFiltros}

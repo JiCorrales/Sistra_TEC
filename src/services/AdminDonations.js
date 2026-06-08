@@ -1,5 +1,5 @@
-import { mockDonations } from "../data/mockData";
-// import { supabase } from "../supabaseClient";
+// import { mockDonations } from "../data/mockData";
+import { supabase } from "../supabaseClient";
 
 /**
  * getAllDonations
@@ -18,16 +18,16 @@ import { mockDonations } from "../data/mockData";
 export const getAllDonations = async () => {
   // ─── MODO MOCK (actual) ───────────────────────────────────────────────
   // Simula la latencia de red para que el "Cargando..." sea visible.
-  await new Promise((resolve) => setTimeout(resolve, 250));
-  return mockDonations;
+  // await new Promise((resolve) => setTimeout(resolve, 250));
+  // return mockDonations;
 
   // ─── MODO REAL (Supabase) — descomentar cuando exista el RPC ───────────
-  // try {
-  //   const { data, error } = await supabase.rpc("GetAllDonations");
-  //   if (error) throw error;
-  //   return data ?? [];
-  // } catch (error) {
-  //   console.error("Error al traer todas las donaciones:", error);
-  //   return [];
-  // }
+  try {
+    const { data, error } = await supabase.rpc("GetAllDonations");
+    if (error) throw error;
+    return data ?? [];
+  } catch (error) {
+    console.error("Error al traer todas las donaciones:", error);
+    return [];
+  }
 };

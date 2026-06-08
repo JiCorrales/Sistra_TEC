@@ -69,10 +69,10 @@ export default function AdminDashboardPage({ onLogout, setScreen }) {
   );
 }
 
+
 function DonacionesTab({ reloadTrigger, onAssign }) {
   const [donations, setDonations] = useState([]);
   const [loading, setLoading] = useState(true);
-
   const [filterId, setFilterId] = useState("");
   const [filterEstado, setFilterEstado] = useState("");
   const [filterTipo, setFilterTipo] = useState("");
@@ -84,7 +84,7 @@ function DonacionesTab({ reloadTrigger, onAssign }) {
       const data = await getAllDonations();
       setDonations(Array.isArray(data) ? data : []);
     } catch (err) {
-      console.error("Error al cargar donaciones del admin:", err);
+      console.error("Error al cargar donaciones:", err);
       setDonations([]);
     } finally {
       setLoading(false);
@@ -98,13 +98,10 @@ function DonacionesTab({ reloadTrigger, onAssign }) {
   const filtered = donations.filter((d) => {
     const haystack = `${d.id} ${d.beneficiario} ${d.donante}`.toLowerCase();
     const byText = filterId ? haystack.includes(filterId.toLowerCase().trim()) : true;
-
     const byEstado = filterEstado
       ? normalizeEstado(d.estado) === normalizeEstado(filterEstado)
       : true;
-
     const byTipo = filterTipo ? d.tipo === filterTipo : true;
-
     return byText && byEstado && byTipo;
   });
 
@@ -113,25 +110,22 @@ function DonacionesTab({ reloadTrigger, onAssign }) {
     setFilterEstado("");
     setFilterTipo("");
   };
-
   const hasFilters = Boolean(filterId || filterEstado || filterTipo);
 
+  // Métricas corregidas
   const total = donations.length;
-  const enTransito = donations.filter((d) => {
-    const estado = normalizeEstado(d.estado);
-    return estado === "en transito";
-  }).length;
-
-  const entregadas = donations.filter((d) => {
-    const estado = normalizeEstado(d.estado);
-    return estado === "entregado";
-  }).length;
+  const recibidas = donations.filter((d) => normalizeEstado(d.estado) === "recibido").length;
+  const clasificadas = donations.filter((d) => normalizeEstado(d.estado) === "clasificado").length;
+  const enTransito = donations.filter((d) => normalizeEstado(d.estado) === "en transito").length; // sin tilde
+  const entregadas = donations.filter((d) => normalizeEstado(d.estado) === "entregado").length;
 
   return (
     <div style={{ display: "flex", gap: 24, padding: "28px 32px" }}>
       <div style={{ flex: 1 }}>
-        <div style={{ display: "flex", gap: 16, marginBottom: 24 }}>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 16, marginBottom: 24 }}>
           <Card title="Total Donaciones" value={total} />
+          <Card title="Recibidas" value={recibidas} />
+          <Card title="Clasificadas" value={clasificadas} />
           <Card title="En tránsito" value={enTransito} />
           <Card title="Entregadas" value={entregadas} />
         </div>
@@ -139,9 +133,7 @@ function DonacionesTab({ reloadTrigger, onAssign }) {
         <SectionHeader title="Todas las donaciones." />
 
         {loading ? (
-          <div style={{ padding: 24, color: "#64748b" }}>
-            Cargando donaciones del sistema...
-          </div>
+          <div style={{ padding: 24, color: "#64748b" }}>Cargando donaciones del sistema...</div>
         ) : (
           <Table
             columns={["Donación", "Tipo de donación", "Beneficiario", "Estado", "Acciones"]}
@@ -151,17 +143,17 @@ function DonacionesTab({ reloadTrigger, onAssign }) {
                 <TD>{d.id}</TD>
                 <TD>{d.tipo}</TD>
                 <TD>{d.beneficiario}</TD>
-                <TD>
-                  <Badge estado={d.estado} />
-                </TD>
+                <TD><Badge estado={d.estado} /></TD>
                 <TD>
                   <div style={{ display: "flex", gap: 8 }}>
                     <Btn size="sm" variant="secondary" onClick={() => setDetail(d)}>
                       Ver detalles
                     </Btn>
-                    <Btn size="sm" onClick={() => onAssign(d)}>
-                      Asignar
-                    </Btn>
+                    {d.estado !== "En Tránsito" && d.estado !== "Entregado" && (
+                      <Btn size="sm" onClick={() => onAssign(d)}>
+                        Asignar
+                      </Btn>
+                    )}
                   </div>
                 </TD>
               </TR>
@@ -185,11 +177,7 @@ function DonacionesTab({ reloadTrigger, onAssign }) {
         <ReportPanel allRows={donations} filteredRows={filtered} hasFilters={hasFilters} />
       </div>
 
-      <DetailModal
-        isOpen={Boolean(detail)}
-        onClose={() => setDetail(null)}
-        donation={detail}
-      />
+      <DetailModal isOpen={Boolean(detail)} onClose={() => setDetail(null)} donation={detail} />
     </div>
   );
 }

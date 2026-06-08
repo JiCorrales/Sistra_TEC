@@ -123,15 +123,53 @@ export const Btn = ({ children, onClick, variant = "primary", size = "md", style
 };
 
 // ─── BADGE ────────────────────────────────────────────────────────────────────
+// En components/UI.js o components/UI/index.js
+
 export const Badge = ({ estado }) => {
-  const map = {
-    "En tránsito": { bg: "#fff7ed", color: "#c2410c" },
-    "Entregada":   { bg: "#f0fdf4", color: "#15803d" },
-    "Pendiente":   { bg: "#eff6ff", color: "#1d4ed8" },
-  };
-  const s = map[estado] || { bg: gray100, color: gray600 };
+  // Normalizar el estado para comparar sin tildes y en minúsculas
+  const normalized = (estado || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+
+  let bgColor, textColor;
+
+  switch (normalized) {
+    case "recibido":
+      bgColor = "#dbeafe";   // azul claro
+      textColor = "#1e40af"; // azul oscuro
+      break;
+    case "clasificado":
+      bgColor = "#fed7aa";   // naranja claro
+      textColor = "#9a3412"; // naranja oscuro
+      break;
+    case "en transito":
+    case "en tránsito":
+      bgColor = "#fef3c7";   // amarillo claro
+      textColor = "#92400e"; // amarillo oscuro
+      break;
+    case "entregado":
+      bgColor = "#dcfce7";   // verde claro
+      textColor = "#166534"; // verde oscuro
+      break;
+    default:
+      bgColor = "#f1f5f9";   // gris claro
+      textColor = "#475569"; // gris oscuro
+      break;
+  }
+
   return (
-    <span style={{ background: s.bg, color: s.color, padding: "3px 10px", borderRadius: 20, fontSize: 12, fontWeight: 600 }}>
+    <span
+      style={{
+        display: "inline-block",
+        padding: "4px 10px",
+        fontSize: "12px",
+        fontWeight: 600,
+        borderRadius: "20px",
+        backgroundColor: bgColor,
+        color: textColor,
+      }}
+    >
       {estado}
     </span>
   );
@@ -154,71 +192,139 @@ export const Card = ({ title, value }) => (
 );
 
 // ─── NAVBAR (CORREGIDO) ───────────────────────────────────────────────────────
-export const Navbar = ({ tabs, activeTab, setActiveTab, onLogout }) => (
-  <nav style={{
-    position: "fixed",    // 1. Cambiado de sticky a fixed para flotar real
-    top: 0,               // 2. Alínea al borde superior absoluto
-    left: 0,              // 3. Alínea al borde izquierdo absoluto
-    width: "100vw",       // 4. Fuerza a llenar el 100% del ancho de pantalla visible
-    boxSizing: "border-box", // Evita desbordamientos por paddings internos
-    zIndex: 1000,         // 5. Asegura que pase por encima de tablas y tarjetas
-    background: tealDark,
-    display: "flex",
-    alignItems: "stretch",
-    height: 70,           // Tu altura configurada
-    boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
-  }}>
-    <div style={{ display: "flex", alignItems: "center", paddingLeft: 24, paddingRight: 20, minWidth: 180 }}>
-      <Logo />
-    </div>
-    <div style={{ display: "flex", flex: 1 }}>
-      {tabs.map(t => (
-        <button
-          key={t}
-          onClick={() => setActiveTab(t)}
-          style={{
-            background: activeTab === t ? "rgba(255,255,255,0.18)" : "transparent",
-            border: "none",
-            borderBottom: activeTab === t ? `3px solid ${white}` : "3px solid transparent",
-            color: white,
-            padding: "0 28px",
-            fontSize: 15,
-            fontWeight: 600,
-            cursor: "pointer",
-            transition: "all 0.15s",
-            letterSpacing: 0.3,
-          }}
-        >
-          {t}
-        </button>
-      ))}
-    </div>
-    <button
-      onClick={onLogout}
-      style={{ background: "none", border: "none", cursor: "pointer", padding: "0 20px", display: "flex", alignItems: "center", gap:"10px" }}
-      title="Cerrar sesión"
-    >   
-      <span
-        style={{
-          color: "white",
-          fontSize: "16px",
-          fontWeight: "600",
-          fontFamily: "Arial, sans-serif"
-        }}
-      >
-        Cerrar Sesión
-      </span>
-      <div style={{
-        width: 38, height: 38, borderRadius: "50%",
-        background: "rgba(255,255,255,0.2)",
-        display: "flex", alignItems: "center", justifyContent: "center",
-        color: white, fontSize: 20,
-      }}>
-        👤
+// export const Navbar = ({ tabs, activeTab, setActiveTab, onLogout }) => (
+//   <nav style={{
+//     position: "fixed",    // 1. Cambiado de sticky a fixed para flotar real
+//     top: 0,               // 2. Alínea al borde superior absoluto
+//     left: 0,              // 3. Alínea al borde izquierdo absoluto
+//     width: "100vw",       // 4. Fuerza a llenar el 100% del ancho de pantalla visible
+//     boxSizing: "border-box", // Evita desbordamientos por paddings internos
+//     zIndex: 1000,         // 5. Asegura que pase por encima de tablas y tarjetas
+//     background: tealDark,
+//     display: "flex",
+//     alignItems: "stretch",
+//     height: 70,           // Tu altura configurada
+//     boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+//   }}>
+//     <div style={{ display: "flex", alignItems: "center", paddingLeft: 24, paddingRight: 20, minWidth: 180 }}>
+//       <Logo />
+//     </div>
+//     <div style={{ display: "flex", flex: 1 }}>
+//       {tabs.map(t => (
+//         <button
+//           key={t}
+//           onClick={() => setActiveTab(t)}
+//           style={{
+//             background: activeTab === t ? "rgba(255,255,255,0.18)" : "transparent",
+//             border: "none",
+//             borderBottom: activeTab === t ? `3px solid ${white}` : "3px solid transparent",
+//             color: white,
+//             padding: "0 28px",
+//             fontSize: 15,
+//             fontWeight: 600,
+//             cursor: "pointer",
+//             transition: "all 0.15s",
+//             letterSpacing: 0.3,
+//           }}
+//         >
+//           {t}
+//         </button>
+//       ))}
+//     </div>
+//     <button
+//       onClick={onLogout}
+//       style={{ background: "none", border: "none", cursor: "pointer", padding: "0 20px", display: "flex", alignItems: "center", gap:"10px" }}
+//       title="Cerrar sesión"
+//     >   
+//       <span
+//         style={{
+//           color: "white",
+//           fontSize: "16px",
+//           fontWeight: "600",
+//           fontFamily: "Arial, sans-serif"
+//         }}
+//       >
+//         Cerrar Sesión
+//       </span>
+//       <div style={{
+//         width: 38, height: 38, borderRadius: "50%",
+//         background: "rgba(255,255,255,0.2)",
+//         display: "flex", alignItems: "center", justifyContent: "center",
+//         color: white, fontSize: 20,
+//       }}>
+//         👤
+//       </div>
+//     </button>
+//   </nav>
+// );
+
+export const Navbar = ({ tabs, activeTab, setActiveTab, onLogout }) => {
+  const handleLogout = () => {
+    const confirmLogout = window.confirm("¿Estás seguro de que deseas cerrar sesión?");
+    if (confirmLogout) {
+      onLogout();
+    }
+  };
+
+  return (
+    <nav style={{
+      position: "fixed",
+      top: 0,
+      left: 0,
+      width: "100vw",
+      boxSizing: "border-box",
+      zIndex: 1000,
+      background: tealDark,
+      display: "flex",
+      alignItems: "stretch",
+      height: 70,
+      boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+    }}>
+      <div style={{ display: "flex", alignItems: "center", paddingLeft: 24, paddingRight: 20, minWidth: 180 }}>
+        <Logo />
       </div>
-    </button>
-  </nav>
-);
+      <div style={{ display: "flex", flex: 1 }}>
+        {tabs.map(t => (
+          <button
+            key={t}
+            onClick={() => setActiveTab(t)}
+            style={{
+              background: activeTab === t ? "rgba(255,255,255,0.18)" : "transparent",
+              border: "none",
+              borderBottom: activeTab === t ? `3px solid ${white}` : "3px solid transparent",
+              color: white,
+              padding: "0 28px",
+              fontSize: 15,
+              fontWeight: 600,
+              cursor: "pointer",
+              transition: "all 0.15s",
+              letterSpacing: 0.3,
+            }}
+          >
+            {t}
+          </button>
+        ))}
+      </div>
+      <button
+        onClick={handleLogout}
+        style={{ background: "none", border: "none", cursor: "pointer", padding: "0 20px", display: "flex", alignItems: "center", gap: "10px" }}
+        title="Cerrar sesión"
+      >   
+        <span style={{ color: "white", fontSize: "16px", fontWeight: "600", fontFamily: "Arial, sans-serif" }}>
+          Cerrar Sesión
+        </span>
+        <div style={{
+          width: 38, height: 38, borderRadius: "50%",
+          background: "rgba(255,255,255,0.2)",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          color: white, fontSize: 20,
+        }}>
+          👤
+        </div>
+      </button>
+    </nav>
+  );
+};
 
 // ─── PAGE WRAPPER (CORREGIDO) ─────────────────────────────────────────────────
 export const PageWrapper = ({ children }) => (

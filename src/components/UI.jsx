@@ -14,24 +14,16 @@ export const Logo = () => (
     color: teal,
     letterSpacing: 2,
     textTransform: "uppercase",
+    backgroundColor: white,
+    borderRadius: "5px",
+    padding: "10px"
   }}>
     SISTRA<span style={{ color: navy }}>–TEC</span>
   </span>
 );
 
 // ─── TEC LOGO ─────────────────────────────────────────────────────────────────
-/*
-export const TecLogo = () => (
-  <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 8 }}>
-    <span style={{ fontSize: 28, fontWeight: 900, color: "#c8102e", fontFamily: "Georgia, serif" }}>TEC</span>
-    <div style={{ width: 2, height: 36, background: "#c8102e" }} />
-    <div style={{ lineHeight: 1.2 }}>
-      <div style={{ fontSize: 13, color: navy, fontWeight: 600 }}>Tecnológico</div>
-      <div style={{ fontSize: 13, color: navy }}>de Costa Rica</div>
-    </div>
-  </div>
-);
-*/
+
 // ─── INPUT ────────────────────────────────────────────────────────────────────
 export const Input = ({ label, placeholder, type = "text", value, onChange, disabled }) => (
   <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
@@ -60,7 +52,7 @@ export const Input = ({ label, placeholder, type = "text", value, onChange, disa
 );
 
 
-// ─── SELECT CORREGIDO ──────────────────────────────────────────────────────────
+// ─── SELECT ──────────────────────────────────────────────────────────
 export const Select = ({ label, placeholder, options = [], value, onChange }) => (
   <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
     {label && <label style={{ fontSize: 13, color: gray600, fontWeight: 500 }}>{label}</label>}
@@ -191,73 +183,7 @@ export const Card = ({ title, value }) => (
   </div>
 );
 
-// ─── NAVBAR (CORREGIDO) ───────────────────────────────────────────────────────
-// export const Navbar = ({ tabs, activeTab, setActiveTab, onLogout }) => (
-//   <nav style={{
-//     position: "fixed",    // 1. Cambiado de sticky a fixed para flotar real
-//     top: 0,               // 2. Alínea al borde superior absoluto
-//     left: 0,              // 3. Alínea al borde izquierdo absoluto
-//     width: "100vw",       // 4. Fuerza a llenar el 100% del ancho de pantalla visible
-//     boxSizing: "border-box", // Evita desbordamientos por paddings internos
-//     zIndex: 1000,         // 5. Asegura que pase por encima de tablas y tarjetas
-//     background: tealDark,
-//     display: "flex",
-//     alignItems: "stretch",
-//     height: 70,           // Tu altura configurada
-//     boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
-//   }}>
-//     <div style={{ display: "flex", alignItems: "center", paddingLeft: 24, paddingRight: 20, minWidth: 180 }}>
-//       <Logo />
-//     </div>
-//     <div style={{ display: "flex", flex: 1 }}>
-//       {tabs.map(t => (
-//         <button
-//           key={t}
-//           onClick={() => setActiveTab(t)}
-//           style={{
-//             background: activeTab === t ? "rgba(255,255,255,0.18)" : "transparent",
-//             border: "none",
-//             borderBottom: activeTab === t ? `3px solid ${white}` : "3px solid transparent",
-//             color: white,
-//             padding: "0 28px",
-//             fontSize: 15,
-//             fontWeight: 600,
-//             cursor: "pointer",
-//             transition: "all 0.15s",
-//             letterSpacing: 0.3,
-//           }}
-//         >
-//           {t}
-//         </button>
-//       ))}
-//     </div>
-//     <button
-//       onClick={onLogout}
-//       style={{ background: "none", border: "none", cursor: "pointer", padding: "0 20px", display: "flex", alignItems: "center", gap:"10px" }}
-//       title="Cerrar sesión"
-//     >   
-//       <span
-//         style={{
-//           color: "white",
-//           fontSize: "16px",
-//           fontWeight: "600",
-//           fontFamily: "Arial, sans-serif"
-//         }}
-//       >
-//         Cerrar Sesión
-//       </span>
-//       <div style={{
-//         width: 38, height: 38, borderRadius: "50%",
-//         background: "rgba(255,255,255,0.2)",
-//         display: "flex", alignItems: "center", justifyContent: "center",
-//         color: white, fontSize: 20,
-//       }}>
-//         👤
-//       </div>
-//     </button>
-//   </nav>
-// );
-
+// ─── NAVBAR ───────────────────────────────────────────────────────
 export const Navbar = ({ tabs, activeTab, setActiveTab, onLogout }) => {
   const handleLogout = () => {
     const confirmLogout = window.confirm("¿Estás seguro de que deseas cerrar sesión?");
@@ -326,7 +252,7 @@ export const Navbar = ({ tabs, activeTab, setActiveTab, onLogout }) => {
   );
 };
 
-// ─── PAGE WRAPPER (CORREGIDO) ─────────────────────────────────────────────────
+// ─── PAGE WRAPPER  ─────────────────────────────────────────────────
 export const PageWrapper = ({ children }) => (
   <div style={{ 
     minHeight: "100vh", 

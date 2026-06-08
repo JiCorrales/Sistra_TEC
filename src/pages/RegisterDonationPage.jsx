@@ -153,7 +153,7 @@ export default function RegisterDonationPage({ onBack, onDone }) {
               <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
                 <Input
                   placeholder="Nombre del donante"
-                  value="Carlos Mora"
+                  value={`${user?.user_metadata.first_name || ''} ${user?.user_metadata.last_name || ''}`}
                   disabled
                 />
                 

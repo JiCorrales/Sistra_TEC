@@ -1,62 +1,60 @@
-import { mockBeneficiarios } from "../data/mockData";
-
-const STORAGE_KEY = "sistratec_admin_beneficiaries";
-
-const readStoredBeneficiaries = () => {
-  const storedValue = localStorage.getItem(STORAGE_KEY);
-  return storedValue ? JSON.parse(storedValue) : null;
-};
-
-const persistBeneficiaries = (beneficiaries) => {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(beneficiaries));
-};
-
-const buildNextBeneficiaryId = (beneficiaries) => {
-  const nextNumber = beneficiaries.length + 1;
-  return `BEN-${String(nextNumber).padStart(3, "0")}`;
-};
+import { supabase } from '../supabaseClient';
 
 export const getAdminBeneficiaries = async () => {
-  const storedBeneficiaries = readStoredBeneficiaries();
-  return storedBeneficiaries || mockBeneficiarios;
+  const { data, error } = await supabase
+    .from('beneficiaries')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching beneficiaries:', error);
+    throw new Error(error.message);
+  }
+
+  return data || [];
 };
 
 export const createAdminBeneficiary = async (beneficiaryData) => {
-  const beneficiaries = await getAdminBeneficiaries();
-  const newBeneficiary = {
-    ...beneficiaryData,
-    id: buildNextBeneficiaryId(beneficiaries),
-    ayudas: 0,
-  };
+  const { name, identification, start_date } = beneficiaryData;
 
-  const updatedBeneficiaries = [...beneficiaries, newBeneficiary];
-  persistBeneficiaries(updatedBeneficiaries);
-  return newBeneficiary;
+  const { data, error } = await supabase
+    .from('beneficiaries')
+    .insert([
+      {
+        name: name.trim(),
+        identification: identification.trim(),
+        start_date,
+      },
+    ])
+    .select()
+    .single();
+
+  if (error) {
+    console.error('Error creating beneficiary:', error);
+    throw new Error(error.message);
+  }
+
+  return data;
 };
 
 export const updateAdminBeneficiary = async (beneficiaryId, beneficiaryData) => {
-  const beneficiaries = await getAdminBeneficiaries();
-  const updatedBeneficiaries = beneficiaries.map((beneficiary) =>
-    beneficiary.id === beneficiaryId
-      ? { ...beneficiary, ...beneficiaryData, id: beneficiaryId }
-      : beneficiary
-  );
+  const { name, identification, start_date } = beneficiaryData;
 
-  persistBeneficiaries(updatedBeneficiaries);
-  return updatedBeneficiaries.find((beneficiary) => beneficiary.id === beneficiaryId);
-};
+  const { data, error } = await supabase
+    .from('beneficiaries')
+    .update({
+      name: name.trim(),
+      identification: identification.trim(),
+      start_date,
+    })
+    .eq('id', beneficiaryId)
+    .select()
+    .single();
 
-export const toggleAdminBeneficiaryStatus = async (beneficiaryId) => {
-  const beneficiaries = await getAdminBeneficiaries();
-  const updatedBeneficiaries = beneficiaries.map((beneficiary) => {
-    if (beneficiary.id !== beneficiaryId) return beneficiary;
+  if (error) {
+    console.error('Error updating beneficiary:', error);
+    throw new Error(error.message);
+  }
 
-    return {
-      ...beneficiary,
-      estado: beneficiary.estado === "Activo" ? "Inactivo" : "Activo",
-    };
-  });
-
-  persistBeneficiaries(updatedBeneficiaries);
-  return updatedBeneficiaries;
+  return data;
 };

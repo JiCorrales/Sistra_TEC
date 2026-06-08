@@ -76,24 +76,6 @@ export default function RegisterDonationPage({ onBack, onDone }) {
     try {
       let publicImageUrl = null;
 
-      // ─── SUBIDA AL BUCKET (OPCIONAL) ───
-      // if (imageFile) {
-      //   const fileExt = imageFile.name.split('.').pop();
-      //   const fileName = `${Date.now()}.${fileExt}`;
-      //   const filePath = `donaciones/${fileName}`;
-
-      //   const { error: uploadError } = await supabase.storage
-      //     .from("donation_images") // Asegúrate de que el bucket se llame así en Supabase Storage
-      //     .upload(filePath, imageFile, { cacheControl: "3600", upsert: true });
-
-      //   if (uploadError) throw uploadError;
-
-      //   const { data: urlData } = supabase.storage
-      //     .from("evidencias")
-      //     .getPublicUrl(filePath);
-
-      //   publicImageUrl = urlData.publicUrl;
-      // }
 
       if (imageFile) {
         const fileExt = imageFile.name.split('.').pop();

@@ -1,4 +1,406 @@
-import { useState, useEffect } from "react";
+// import { useState, useEffect } from "react";
+// import {
+//   Navbar, PageWrapper, Footer,
+//   SectionHeader, Table, TR, TD, Badge, Btn,
+// } from "../components/UI";
+// import { white, gray200, gray600, gray800 } from "../tokens";
+// import DeliverLoadPage from "./DeliverLoadPage";
+// import { getTransportistaDashboard } from "../services/TransportistaDashboard";
+// import { useAuth } from "../context/AuthContext";
+
+// /**
+//  * TransportistaDashboardPage
+//  * Props:
+//  *   onLogout() — navigate back to login
+//  */
+// export default function TransportistaDashboardPage({ onLogout, setScreen }) {
+//   const { user } = useAuth();
+//   const transportistaId = user?.id;
+
+//   const [delivering, setDelivering] = useState(null);
+//   const [donations, setDonations] = useState([]);
+//   const [loading, setLoading] = useState(true);
+
+//   useEffect(() => {
+//     // Si la sesión aún carga o no hay usuario logueado, no disparamos la carga
+//     if (!transportistaId) return;
+
+//     let active = true;
+//     setLoading(true);
+//     getTransportistaDashboard(transportistaId).then((data) => {
+//       if (active) {
+//         setDonations(Array.isArray(data) ? data : []);
+//         setLoading(false);
+//       }
+//     });
+//     return () => { active = false; };
+//   }, [transportistaId]);
+
+//   if (delivering) {
+//     return (
+//       <DeliverLoadPage
+//         donation={delivering}
+//         transportistaId={transportistaId}
+//         onBack={() => {
+//           setDelivering(null);
+//           // Refrescar la lista después de confirmar
+//           if (!transportistaId) return;
+//           setLoading(true);
+//           getTransportistaDashboard(transportistaId).then((data) => {
+//             setDonations(Array.isArray(data) ? data : []);
+//             setLoading(false);
+//           });
+//         }}
+//       />
+//     );
+//   }
+
+//   const enTransito  = donations.filter(d => d.estado === "En tránsito").length;
+//   const pendientes  = donations.filter(d => d.estado === "Pendiente").length;
+
+//   return (
+//     <PageWrapper>
+//       <Navbar
+//         tabs={["Donaciones asignadas"]}
+//         activeTab="Donaciones asignadas"
+//         setActiveTab={() => {}}
+//         onLogout={onLogout}
+//       />
+
+//       <div style={{ flex: 1, display: "flex", gap: 24, padding: "28px 32px" }}>
+//         <div style={{ flex: 1 }}>
+//           <SectionHeader title="Donaciones asignadas" />
+//           {loading ? (
+//             <div style={{ padding: 24, color: "#64748b" }}>Cargando cargas asignadas...</div>
+//           ) : (
+//             <Table
+//               columns={["Donación", "Tipo de donación", "Beneficiario", "Estado", ""]}
+//               rows={donations}
+//               renderRow={(d, i) => (
+//                 <TR key={d.id || i}>
+//                   <TD>{d.id}</TD>
+//                   <TD>{d.tipo}</TD>
+//                   <TD>{d.beneficiario}</TD>
+//                   <TD><Badge estado={d.estado} /></TD>
+//                   <TD>
+//                     <Btn size="sm" variant="secondary" onClick={() => setDelivering(d)}>
+//                       Ver detalles
+//                     </Btn>
+//                   </TD>
+//                 </TR>
+//               )}
+//             />
+//           )}
+//         </div>
+
+//         <div style={{ width: 280, display: "flex", flexDirection: "column", gap: 16 }}>
+//           <StatBox label="Donaciones Asignadas" value={donations.length} />
+//           <StatBox label="En tránsito"          value={enTransito} />
+//           <StatBox label="Pendientes"           value={pendientes} />
+//         </div>
+//       </div>
+
+//       <Footer />
+//       <Btn onClick={() => setScreen("edit-userdonador")}>
+//     Editar usuario
+//   </Btn>
+//     </PageWrapper>
+//   );
+// }
+
+// function StatBox({ label, value }) {
+//   return (
+//     <div style={{
+//       background: white, borderRadius: 10,
+//       border: `1px solid ${gray200}`, padding: 24,
+//       boxShadow: "0 1px 4px rgba(0,0,0,0.05)",
+//     }}>
+//       <div style={{ fontSize: 13, color: gray600, marginBottom: 8 }}>{label}</div>
+//       <div style={{ fontSize: 42, fontWeight: 700, color: gray800 }}>{value}</div>
+//     </div>
+//   );
+// }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// import { useState, useEffect } from "react";
+// import {
+//   Navbar, PageWrapper, Footer,
+//   SectionHeader, Table, TR, TD, Badge, Btn,
+// } from "../components/UI";
+// import { white, gray200, gray600, gray800 } from "../tokens";
+// import DeliverLoadPage from "./DeliverLoadPage";
+// import { getTransportistaDashboard } from "../services/TransportistaDashboard";
+// import { useAuth } from "../context/AuthContext";
+
+// export default function TransportistaDashboardPage({ onLogout, setScreen }) {
+//   const { user } = useAuth();
+//   const transportistaId = user?.id;
+
+//   const [delivering, setDelivering] = useState(null);
+//   const [donations, setDonations] = useState([]);
+//   const [loading, setLoading] = useState(true);
+//   const [refreshKey, setRefreshKey] = useState(0);
+
+//   const loadDonations = async () => {
+//     if (!transportistaId) return;
+//     setLoading(true);
+//     const data = await getTransportistaDashboard(transportistaId);
+//     setDonations(Array.isArray(data) ? data : []);
+//     setLoading(false);
+//   };
+
+//   useEffect(() => {
+//     loadDonations();
+//   }, [transportistaId, refreshKey]);
+
+//   const handleDeliveryComplete = () => {
+//     setRefreshKey(prev => prev + 1);
+//   };
+
+//   if (delivering) {
+//     return (
+//       <DeliverLoadPage
+//         donation={delivering}
+//         transportistaId={transportistaId}
+//         onBack={() => {
+//           setDelivering(null);
+//           handleDeliveryComplete();
+//         }}
+//       />
+//     );
+//   }
+
+//   const enTransito = donations.filter(d => d.estado === "En tránsito").length;
+//   const pendientes = donations.filter(d => d.estado === "Pendiente").length;
+
+//   return (
+//     <PageWrapper>
+//       <Navbar
+//         tabs={["Donaciones asignadas"]}
+//         activeTab="Donaciones asignadas"
+//         setActiveTab={() => {}}
+//         onLogout={onLogout}
+//       />
+
+//       <div style={{ flex: 1, display: "flex", gap: 24, padding: "28px 32px" }}>
+//         <div style={{ flex: 1 }}>
+//           <SectionHeader title="Donaciones asignadas" />
+//           {loading ? (
+//             <div style={{ padding: 24, color: "#64748b" }}>Cargando cargas asignadas...</div>
+//           ) : donations.length === 0 ? (
+//             <div style={{ padding: 24, color: "#64748b" }}>No hay donaciones asignadas.</div>
+//           ) : (
+//             <Table
+//               columns={["Donación", "Tipo de donación", "Beneficiario", "Estado", ""]}
+//               rows={donations}
+//               renderRow={(d, i) => (
+//                 <TR key={d.id || i}>
+//                   <TD>{d.id}</TD>
+//                   <TD>{d.tipo}</TD>
+//                   <TD>{d.beneficiario}</TD>
+//                   <TD><Badge estado={d.estado} /></TD>
+//                   <TD>
+//                     <Btn size="sm" variant="secondary" onClick={() => setDelivering(d)}>
+//                       Ver detalles
+//                     </Btn>
+//                   </TD>
+//                 </TR>
+//               )}
+//             />
+//           )}
+//         </div>
+
+//         <div style={{ width: 280, display: "flex", flexDirection: "column", gap: 16 }}>
+//           <StatBox label="Donaciones Asignadas" value={donations.length} />
+//           <StatBox label="En tránsito" value={enTransito} />
+//           <StatBox label="Pendientes" value={pendientes} />
+//         </div>
+//       </div>
+
+//       <div style={{ padding: "16px 32px", borderTop: `1px solid ${gray200}`, textAlign: "right" }}>
+//         <Btn onClick={() => setScreen("edit-userdonador")}>Editar usuario</Btn>
+//       </div>
+
+//       <Footer />
+//     </PageWrapper>
+//   );
+// }
+
+// function StatBox({ label, value }) {
+//   return (
+//     <div style={{
+//       background: white, borderRadius: 10,
+//       border: `1px solid ${gray200}`, padding: 24,
+//       boxShadow: "0 1px 4px rgba(0,0,0,0.05)",
+//     }}>
+//       <div style={{ fontSize: 13, color: gray600, marginBottom: 8 }}>{label}</div>
+//       <div style={{ fontSize: 42, fontWeight: 700, color: gray800 }}>{value}</div>
+//     </div>
+//   );
+// }
+
+
+
+
+
+
+
+
+
+
+
+// import { useState, useEffect } from "react";
+// import {
+//   Navbar, PageWrapper, Footer,
+//   SectionHeader, Table, TR, TD, Badge, Btn,
+// } from "../components/UI";
+// import { white, gray200, gray600, gray800 } from "../tokens";
+// import DeliverLoadPage from "./DeliverLoadPage";
+// import { getTransportistaDashboard } from "../services/TransportistaDashboard";
+// import { useAuth } from "../context/AuthContext";
+
+// export default function TransportistaDashboardPage({ onLogout, setScreen }) {
+//   const { user } = useAuth();
+//   const transportistaId = user?.id;
+
+//   const [delivering, setDelivering] = useState(null);
+//   const [donations, setDonations] = useState([]);
+//   const [loading, setLoading] = useState(true);
+//   const [refreshKey, setRefreshKey] = useState(0);
+
+//   // Cargar donaciones cada vez que cambie transportistaId o refreshKey
+//   useEffect(() => {
+//     if (!transportistaId) return;
+//     let active = true;
+//     setLoading(true);
+//     getTransportistaDashboard(transportistaId)
+//       .then((data) => {
+//         if (active) {
+//           setDonations(Array.isArray(data) ? data : []);
+//         }
+//       })
+//       .catch((err) => console.error("Error cargando donaciones:", err))
+//       .finally(() => {
+//         if (active) setLoading(false);
+//       });
+//     return () => { active = false; };
+//   }, [transportistaId, refreshKey]); // Dependencias correctas
+
+//   const handleDeliveryComplete = () => {
+//     setRefreshKey(prev => prev + 1);
+//   };
+
+//   if (delivering) {
+//     return (
+//       <DeliverLoadPage
+//         donation={delivering}
+//         transportistaId={transportistaId}
+//         onBack={() => {
+//           setDelivering(null);
+//           handleDeliveryComplete();
+//         }}
+//       />
+//     );
+//   }
+
+//   const enTransito = donations.filter(d => d.estado === "En tránsito").length;
+//   const pendientes = donations.filter(d => d.estado === "Pendiente").length;
+
+//   return (
+//     <PageWrapper>
+//       <Navbar
+//         tabs={["Donaciones asignadas"]}
+//         activeTab="Donaciones asignadas"
+//         setActiveTab={() => {}}
+//         onLogout={onLogout}
+//       />
+
+//       <div style={{ flex: 1, display: "flex", gap: 24, padding: "28px 32px" }}>
+//         <div style={{ flex: 1 }}>
+//           <SectionHeader title="Donaciones asignadas" />
+//           {loading ? (
+//             <div style={{ padding: 24, color: "#64748b" }}>Cargando cargas asignadas...</div>
+//           ) : donations.length === 0 ? (
+//             <div style={{ padding: 24, color: "#64748b" }}>No hay donaciones asignadas.</div>
+//           ) : (
+//             <Table
+//               columns={["Donación", "Tipo de donación", "Beneficiario", "Estado", ""]}
+//               rows={donations}
+//               renderRow={(d, i) => (
+//                 <TR key={d.id || i}>
+//                   <TD>{d.id}</TD>
+//                   <TD>{d.tipo}</TD>
+//                   <TD>{d.beneficiario}</TD>
+//                   <TD><Badge estado={d.estado} /></TD>
+//                   <TD>
+//                     <Btn size="sm" variant="secondary" onClick={() => setDelivering(d)}>
+//                       Ver detalles
+//                     </Btn>
+//                   </TD>
+//                 </TR>
+//               )}
+//             />
+//           )}
+//         </div>
+
+//         <div style={{ width: 280, display: "flex", flexDirection: "column", gap: 16 }}>
+//           <StatBox label="Donaciones Asignadas" value={donations.length} />
+//           <StatBox label="En tránsito" value={enTransito} />
+//           <StatBox label="Pendientes" value={pendientes} />
+//         </div>
+//       </div>
+
+//       <div style={{ padding: "16px 32px", borderTop: `1px solid ${gray200}`, textAlign: "right" }}>
+//         <Btn onClick={() => setScreen("edit-userdonador")}>Editar usuario</Btn>
+//       </div>
+
+//       <Footer />
+//     </PageWrapper>
+//   );
+// }
+
+// function StatBox({ label, value }) {
+//   return (
+//     <div style={{
+//       background: white, borderRadius: 10,
+//       border: `1px solid ${gray200}`, padding: 24,
+//       boxShadow: "0 1px 4px rgba(0,0,0,0.05)",
+//     }}>
+//       <div style={{ fontSize: 13, color: gray600, marginBottom: 8 }}>{label}</div>
+//       <div style={{ fontSize: 42, fontWeight: 700, color: gray800 }}>{value}</div>
+//     </div>
+//   );
+// }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+import { useState, useEffect, useCallback } from "react";
 import {
   Navbar, PageWrapper, Footer,
   SectionHeader, Table, TR, TD, Badge, Btn,
@@ -8,11 +410,14 @@ import DeliverLoadPage from "./DeliverLoadPage";
 import { getTransportistaDashboard } from "../services/TransportistaDashboard";
 import { useAuth } from "../context/AuthContext";
 
-/**
- * TransportistaDashboardPage
- * Props:
- *   onLogout() — navigate back to login
- */
+const normalizeText = (value = "") =>
+  value
+    .toString()
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+
 export default function TransportistaDashboardPage({ onLogout, setScreen }) {
   const { user } = useAuth();
   const transportistaId = user?.id;
@@ -20,21 +425,38 @@ export default function TransportistaDashboardPage({ onLogout, setScreen }) {
   const [delivering, setDelivering] = useState(null);
   const [donations, setDonations] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshKey, setRefreshKey] = useState(0);
 
-  useEffect(() => {
-    // Si la sesión aún carga o no hay usuario logueado, no disparamos la carga
+  const loadDonations = useCallback(async () => {
     if (!transportistaId) return;
 
     let active = true;
     setLoading(true);
-    getTransportistaDashboard(transportistaId).then((data) => {
+
+    try {
+      const data = await getTransportistaDashboard(transportistaId);
       if (active) {
         setDonations(Array.isArray(data) ? data : []);
-        setLoading(false);
       }
-    });
-    return () => { active = false; };
+    } catch (err) {
+      console.error("Error cargando donaciones:", err);
+      if (active) setDonations([]);
+    } finally {
+      if (active) setLoading(false);
+    }
+
+    return () => {
+      active = false;
+    };
   }, [transportistaId]);
+
+  useEffect(() => {
+    loadDonations();
+  }, [loadDonations, refreshKey]);
+
+  const handleDeliveryComplete = () => {
+    setRefreshKey((prev) => prev + 1);
+  };
 
   if (delivering) {
     return (
@@ -43,20 +465,24 @@ export default function TransportistaDashboardPage({ onLogout, setScreen }) {
         transportistaId={transportistaId}
         onBack={() => {
           setDelivering(null);
-          // Refrescar la lista después de confirmar
-          if (!transportistaId) return;
-          setLoading(true);
-          getTransportistaDashboard(transportistaId).then((data) => {
-            setDonations(Array.isArray(data) ? data : []);
-            setLoading(false);
-          });
+          handleDeliveryComplete();
+        }}
+        onDonationUpdated={() => {
+          handleDeliveryComplete();
         }}
       />
     );
   }
 
-  const enTransito  = donations.filter(d => d.estado === "En tránsito").length;
-  const pendientes  = donations.filter(d => d.estado === "Pendiente").length;
+  const enTransito = donations.filter((d) => {
+    const estado = normalizeText(d.estado);
+    return estado === "en transito" || estado === "en tránsito";
+  }).length;
+
+  const pendientes = donations.filter((d) => {
+    const estado = normalizeText(d.estado);
+    return estado === "pendiente";
+  }).length;
 
   return (
     <PageWrapper>
@@ -71,7 +497,13 @@ export default function TransportistaDashboardPage({ onLogout, setScreen }) {
         <div style={{ flex: 1 }}>
           <SectionHeader title="Donaciones asignadas" />
           {loading ? (
-            <div style={{ padding: 24, color: "#64748b" }}>Cargando cargas asignadas...</div>
+            <div style={{ padding: 24, color: "#64748b" }}>
+              Cargando cargas asignadas...
+            </div>
+          ) : donations.length === 0 ? (
+            <div style={{ padding: 24, color: "#64748b" }}>
+              No hay donaciones asignadas.
+            </div>
           ) : (
             <Table
               columns={["Donación", "Tipo de donación", "Beneficiario", "Estado", ""]}
@@ -81,7 +513,9 @@ export default function TransportistaDashboardPage({ onLogout, setScreen }) {
                   <TD>{d.id}</TD>
                   <TD>{d.tipo}</TD>
                   <TD>{d.beneficiario}</TD>
-                  <TD><Badge estado={d.estado} /></TD>
+                  <TD>
+                    <Badge estado={d.estado} />
+                  </TD>
                   <TD>
                     <Btn size="sm" variant="secondary" onClick={() => setDelivering(d)}>
                       Ver detalles
@@ -95,26 +529,31 @@ export default function TransportistaDashboardPage({ onLogout, setScreen }) {
 
         <div style={{ width: 280, display: "flex", flexDirection: "column", gap: 16 }}>
           <StatBox label="Donaciones Asignadas" value={donations.length} />
-          <StatBox label="En tránsito"          value={enTransito} />
-          <StatBox label="Pendientes"           value={pendientes} />
+          <StatBox label="En tránsito" value={enTransito} />
+          <StatBox label="Pendientes" value={pendientes} />
         </div>
       </div>
 
+      <div style={{ padding: "16px 32px", borderTop: `1px solid ${gray200}`, textAlign: "right" }}>
+        <Btn onClick={() => setScreen("edit-userdonador")}>Editar usuario</Btn>
+      </div>
+
       <Footer />
-      <Btn onClick={() => setScreen("edit-userdonador")}>
-    Editar usuario
-  </Btn>
     </PageWrapper>
   );
 }
 
 function StatBox({ label, value }) {
   return (
-    <div style={{
-      background: white, borderRadius: 10,
-      border: `1px solid ${gray200}`, padding: 24,
-      boxShadow: "0 1px 4px rgba(0,0,0,0.05)",
-    }}>
+    <div
+      style={{
+        background: white,
+        borderRadius: 10,
+        border: `1px solid ${gray200}`,
+        padding: 24,
+        boxShadow: "0 1px 4px rgba(0,0,0,0.05)",
+      }}
+    >
       <div style={{ fontSize: 13, color: gray600, marginBottom: 8 }}>{label}</div>
       <div style={{ fontSize: 42, fontWeight: 700, color: gray800 }}>{value}</div>
     </div>
